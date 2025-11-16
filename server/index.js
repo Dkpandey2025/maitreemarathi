@@ -3,25 +3,35 @@
 // const cors = require("cors");
 // const User = require("./models/User");
 // const axios = require("axios");
-// const app = express();
-// const PORT = process.env.PORT || 5000;
 // const bodyParser = require("body-parser");
 
+// const app = express();
+// const PORT = process.env.PORT || 5000;
+
+// // MIDDLEWARE
 // app.use(cors({ origin: "http://localhost:5173" }));
 // app.use(express.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
 
-// // MongoDB connection
+// // =======================
+// //  CONNECT MONGODB
+// // =======================
 // mongoose
 //   .connect("mongodb://localhost:27017/maitreemarathi")
 //   .then(() => console.log("✅ MongoDB connected"))
 //   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// // Test route
+// // =======================
+// //  TEST ROUTE
+// // =======================
 // app.get("/", (req, res) => {
 //   res.send("Backend is running ✅");
 // });
 
-// // ========== REGISTER ==========
+// // =======================
+// //  REGISTER USER
+// // =======================
 // app.post("/register", async (req, res) => {
 //   try {
 //     const { name, phone, password } = req.body;
@@ -34,7 +44,6 @@
 //       });
 //     }
 
-//     // Save user with plain password (for testing only)
 //     const newUser = await User.create({ name, phone, password });
 
 //     res.status(201).json({
@@ -50,7 +59,9 @@
 //   }
 // });
 
-// // ========== LOGIN ==========
+// // =======================
+// //  LOGIN USER
+// // =======================
 // app.post("/login", async (req, res) => {
 //   try {
 //     const { phone, password } = req.body;
@@ -77,37 +88,14 @@
 //   }
 // });
 
-// //PAYMENT GATEWAY INTEGRATION
-// // app.post("/payment", async (req, res) => {
-// //   try {
-// //     const instaServer = "https://test.instamojo.com/api/1.1/payment-requests";
-// //     const payload = {
-// //       amount: 2000,
-// //       buyer_name: "Maitree Marathi",
-// //       purpose: "Donation",
-// //       email: "example@example.com",
-// //       phone: "9999999999",
-// //     };
-// //     const auth = {
-// //       "X-Api-key": "4a092aec9492f738b0bb290de9e93a48",
-// //       "X-Auth-Token": "3e74728dbd978ef3f356d52a1d8aab26",
-// //     };
-// //     const { data } = await axios.post(instaServer, payload, auth);
-// //     res.status(200).json({ status: "success", data: data });
-// //   } catch (error) {
-// //     res
-// //       .status(500)
-// //       .json({ status: "error", message: "Internal server error." });
-// //   }
-// // });
-
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
-
+// // =======================
+// //  INSTAMOJO PAYMENT
+// // =======================
 // app.post("/payment", async (req, res) => {
 //   try {
-//     const buyer = req.body
-//     console.log(req.body);
+//     const buyer = req.body;
+//     console.log("📩 Payment Request Received:", buyer);
+
 //     const instaServer = "https://www.instamojo.com/api/1.1/payment-requests/";
 
 //     const payload = {
@@ -132,7 +120,7 @@
 //       data: response.data,
 //     });
 //   } catch (error) {
-//     console.error("Instamojo Error:", error.response?.data || error.message);
+//     console.error("❌ Instamojo Error:", error.response?.data || error.message);
 
 //     res.status(500).json({
 //       status: "error",
@@ -142,6 +130,9 @@
 //   }
 // });
 
+// // =======================
+// //  START SERVER
+// // =======================
 // app.listen(PORT, () => {
 //   console.log(`🚀 Server running on http://localhost:${PORT}`);
 // });
@@ -156,7 +147,9 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// MIDDLEWARE
+// =======================
+//  MIDDLEWARE
+// =======================
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -171,6 +164,19 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // =======================
+//  HELPER – Generate Referral Code
+// =======================
+// function generateReferralCode(phone) {
+//   return "MM" + phone.slice(-4) + Math.floor(1000 + Math.random() * 9000);
+// }
+
+function generateReferralCode(identifier) {
+  const clean = String(identifier).replace(/[^a-zA-Z0-9]/g, "");
+  const last4 = clean.slice(-4).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return "MM" + last4 + random;
+}
+// =======================
 //  TEST ROUTE
 // =======================
 app.get("/", (req, res) => {
@@ -178,12 +184,13 @@ app.get("/", (req, res) => {
 });
 
 // =======================
-//  REGISTER USER
+//  REGISTER USER (With Referral Logic)
 // =======================
 app.post("/register", async (req, res) => {
   try {
-    const { name, phone, password } = req.body;
+    const { name, phone, password, referralCode } = req.body;
 
+    // Check if user already exists
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
       return res.status(400).json({
@@ -192,18 +199,46 @@ app.post("/register", async (req, res) => {
       });
     }
 
-    const newUser = await User.create({ name, phone, password });
+    // Generate user's own referral code
+    const myReferralCode = generateReferralCode(phone);
+
+    // Create user
+    const newUser = await User.create({
+      name,
+      phone,
+      password,
+      referralCode: myReferralCode,
+      referredBy: referralCode || null,
+    });
+
+    // --------------------------
+    //  REFERRAL BONUS LOGIC
+    // --------------------------
+    if (referralCode) {
+      const referrer = await User.findOne({ referralCode });
+
+      if (referrer) {
+        referrer.wallet += 100; // ₹100 reward
+        referrer.referralCount += 1;
+        await referrer.save();
+      }
+    }
 
     res.status(201).json({
       status: "success",
       message: "User registered successfully!",
-      user: { name: newUser.name, phone: newUser.phone },
+      user: {
+        name: newUser.name,
+        phone: newUser.phone,
+        referralCode: newUser.referralCode,
+      },
     });
   } catch (error) {
     console.error("Error in /register:", error);
-    res
-      .status(500)
-      .json({ status: "error", message: "Internal server error." });
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error.",
+    });
   }
 });
 
@@ -226,13 +261,20 @@ app.post("/login", async (req, res) => {
     res.json({
       status: "success",
       message: "Login successful.",
-      user: { name: user.name, phone: user.phone },
+      user: {
+        name: user.name,
+        phone: user.phone,
+        wallet: user.wallet,
+        referralCode: user.referralCode,
+        referralCount: user.referralCount,
+      },
     });
   } catch (error) {
     console.error("Error in /login:", error);
-    res
-      .status(500)
-      .json({ status: "error", message: "Internal server error." });
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error.",
+    });
   }
 });
 
