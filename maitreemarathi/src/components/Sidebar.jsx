@@ -20,10 +20,10 @@ export default function Sidebar({ open, closeSidebar }) {
     <div
       className={`fixed inset-y-0 left-0 bg-white w-64 shadow-lg transform transition-transform ${
         open ? "translate-x-0" : "-translate-x-full"
-      } sm:translate-x-0 z-40`}
+      } sm:fixed sm:inset-y-0 sm:left-0 sm:translate-x-0 z-40`}
     >
       <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-xl font-bold text-orange-600">Menu</h2>
+        <h2 className="text-xl font-bold text-purple-600">Menu</h2>
         <button className="sm:hidden text-gray-600" onClick={closeSidebar}>
           ✖
         </button>
@@ -34,7 +34,7 @@ export default function Sidebar({ open, closeSidebar }) {
             key={link.to}
             to={link.to}
             onClick={closeSidebar}
-            className="text-gray-700 hover:text-orange-600 hover:bg-orange-100 px-3 py-2 rounded-lg transition"
+            className="text-gray-700 hover:text-purple-600 hover:bg-purple-100 px-3 py-2 rounded-lg transition"
           >
             {link.label}
           </Link>

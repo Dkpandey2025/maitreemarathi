@@ -3,6 +3,7 @@ const Admin = require("../models/Admin");
 const Lesson = require("../models/Lesson");
 const User = require("../models/User");
 const Quiz = require("../models/Quiz");
+const Redemption = require("../models/Redemption");
 
 const router = express.Router();
 
@@ -290,6 +291,84 @@ router.delete("/quizzes/:id", async (req, res) => {
     const quiz = await Quiz.findByIdAndDelete(req.params.id);
     if (!quiz) return res.json({ status: "error", message: "Quiz not found" });
     res.json({ status: "success", message: "Quiz deleted" });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// =========================
+// WALLET REDEMPTION ENDPOINTS
+// =========================
+
+// GET ALL REDEMPTION REQUESTS
+router.get("/redemptions", async (req, res) => {
+  try {
+    const redemptions = await Redemption.find()
+      .sort({ requestedAt: -1 });
+    res.json({ status: "success", redemptions });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// GET REDEMPTION BY STATUS
+router.get("/redemptions/status/:status", async (req, res) => {
+  try {
+    const redemptions = await Redemption.find({ status: req.params.status })
+      .sort({ requestedAt: -1 });
+    res.json({ status: "success", redemptions });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// UPDATE REDEMPTION STATUS
+router.put("/redemptions/:id/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const redemption = await Redemption.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status,
+        processedAt: status === "processed" ? new Date() : null
+      },
+      { new: true }
+    );
+
+    if (!redemption) {
+      return res.json({ status: "error", message: "Redemption not found" });
+    }
+
+    // If processed, deduct from user's wallet
+    if (status === "processed") {
+      const user = await User.findById(redemption.userId);
+      if (user) {
+        user.wallet -= redemption.amount;
+        await user.save();
+      }
+    }
+
+    res.json({ status: "success", message: "Redemption status updated", redemption });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// UPDATE USER WALLET BALANCE (Admin can edit directly)
+router.put("/users/:id/wallet", async (req, res) => {
+  try {
+    const { wallet } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { wallet },
+      { new: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.json({ status: "error", message: "User not found" });
+    }
+
+    res.json({ status: "success", message: "Wallet updated", user });
   } catch (err) {
     res.status(500).json({ status: "error", message: "Server error" });
   }

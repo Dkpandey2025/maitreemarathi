@@ -27,12 +27,16 @@ export default function AdminDashboard() {
   const [quizzes, setQuizzes] = useState([]);
   const [quizForm, setQuizForm] = useState({ level: "beginner", quizNumber: 1, afterLesson: 5, questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }] });
   const [editingQuiz, setEditingQuiz] = useState(null);
+  const [redemptions, setRedemptions] = useState([]);
+  const [editingWalletUser, setEditingWalletUser] = useState(null);
+  const [newWalletAmount, setNewWalletAmount] = useState("");
 
   useEffect(() => {
     fetchStats();
     fetchUsers();
     fetchLessons();
     fetchQuizzes();
+    fetchRedemptions();
   }, []);
 
   const fetchStats = async () => {
@@ -72,6 +76,17 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error("Error fetching quizzes:", err);
+    }
+  };
+
+  const fetchRedemptions = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/admin/redemptions");
+      if (res.data.status === "success") {
+        setRedemptions(res.data.redemptions);
+      }
+    } catch (err) {
+      console.error("Error fetching redemptions:", err);
     }
   };
 
@@ -234,6 +249,47 @@ export default function AdminDashboard() {
     }
   };
 
+  const updateRedemptionStatus = async (redemptionId, newStatus) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/admin/redemptions/${redemptionId}/status`,
+        { status: newStatus }
+      );
+      if (res.data.status === "success") {
+        alert(`Redemption marked as ${newStatus}`);
+        fetchRedemptions();
+        fetchStats();
+      }
+    } catch (err) {
+      console.error("Error updating redemption:", err);
+      alert("Error updating redemption status");
+    }
+  };
+
+  const updateUserWallet = async (userId) => {
+    if (!newWalletAmount || newWalletAmount < 0) {
+      alert("Enter a valid wallet amount");
+      return;
+    }
+
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/admin/users/${userId}/wallet`,
+        { wallet: parseInt(newWalletAmount) }
+      );
+      if (res.data.status === "success") {
+        alert("Wallet updated successfully");
+        setEditingWalletUser(null);
+        setNewWalletAmount("");
+        fetchUsers();
+        fetchStats();
+      }
+    } catch (err) {
+      console.error("Error updating wallet:", err);
+      alert("Error updating wallet");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
     localStorage.removeItem("userType");
@@ -243,9 +299,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-purple-50 p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-orange-600">Admin Dashboard</h2>
+        <h2 className="text-3xl font-bold text-purple-600">Admin Dashboard</h2>
         <button
           onClick={handleLogout}
           className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold"
@@ -256,10 +312,11 @@ export default function AdminDashboard() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 justify-center flex-wrap">
-        <button onClick={() => setActiveTab("stats")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "stats" ? "bg-orange-600 text-white" : "bg-white"}`}>Stats</button>
-        <button onClick={() => setActiveTab("users")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "users" ? "bg-orange-600 text-white" : "bg-white"}`}>Users</button>
-        <button onClick={() => setActiveTab("lessons")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "lessons" ? "bg-orange-600 text-white" : "bg-white"}`}>Lessons</button>
-        <button onClick={() => setActiveTab("quizzes")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "quizzes" ? "bg-orange-600 text-white" : "bg-white"}`}>Quizzes</button>
+        <button onClick={() => setActiveTab("stats")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "stats" ? "bg-purple-600 text-white" : "bg-white"}`}>Stats</button>
+        <button onClick={() => setActiveTab("users")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "users" ? "bg-purple-600 text-white" : "bg-white"}`}>Users</button>
+        <button onClick={() => setActiveTab("redemptions")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "redemptions" ? "bg-purple-600 text-white" : "bg-white"}`}>Redemptions</button>
+        <button onClick={() => setActiveTab("lessons")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "lessons" ? "bg-purple-600 text-white" : "bg-white"}`}>Lessons</button>
+        <button onClick={() => setActiveTab("quizzes")} className={`px-6 py-2 rounded-lg font-semibold ${activeTab === "quizzes" ? "bg-purple-600 text-white" : "bg-white"}`}>Quizzes</button>
       </div>
 
       {/* Stats Tab */}
@@ -267,11 +324,11 @@ export default function AdminDashboard() {
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-white p-6 rounded-2xl shadow text-center">
             <h3 className="text-lg font-semibold">Total Users</h3>
-            <p className="text-2xl font-bold text-orange-600">{stats.totalUsers}</p>
+            <p className="text-2xl font-bold text-purple-600">{stats.totalUsers}</p>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow text-center">
             <h3 className="text-lg font-semibold">Total Lessons</h3>
-            <p className="text-2xl font-bold text-orange-600">{stats.totalLessons}</p>
+            <p className="text-2xl font-bold text-purple-600">{stats.totalLessons}</p>
           </div>
           <div className="bg-white p-6 rounded-2xl shadow text-center">
             <h3 className="text-lg font-semibold">Total Wallet</h3>
@@ -287,7 +344,7 @@ export default function AdminDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="text-left bg-orange-100">
+                <tr className="text-left bg-purple-100">
                   <th className="p-3 border">Name</th>
                   <th className="p-3 border">Phone</th>
                   <th className="p-3 border">Subscription</th>
@@ -372,7 +429,17 @@ export default function AdminDashboard() {
                 <div className="space-y-2 mb-4">
                   <p><strong>Name:</strong> {selectedUser.name}</p>
                   <p><strong>Phone:</strong> {selectedUser.phone}</p>
-                  <p><strong>Wallet:</strong> ₹{selectedUser.wallet}</p>
+                  <p><strong>Wallet:</strong> ₹{selectedUser.wallet} 
+                    <button 
+                      onClick={() => {
+                        setEditingWalletUser(selectedUser._id);
+                        setNewWalletAmount(selectedUser.wallet);
+                      }}
+                      className="ml-2 text-blue-500 text-sm hover:underline"
+                    >
+                      (Edit)
+                    </button>
+                  </p>
                   <p><strong>Referral Code:</strong> {selectedUser.referralCode}</p>
                   <p><strong>Referred By:</strong> {selectedUser.referredBy || "None"}</p>
                   <p><strong>Referral Count:</strong> {selectedUser.referralCount}</p>
@@ -406,14 +473,110 @@ export default function AdminDashboard() {
                 
                 <hr className="my-4" />
                 
-                <div className="mt-4">
-                  <label className="block font-semibold mb-2">Update Password</label>
-                  <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" className="w-full border p-2 rounded-lg mb-2" />
-                  <button onClick={updatePassword} className="bg-green-500 text-white px-4 py-2 rounded-lg w-full">Update Password</button>
-                </div>
+                {editingWalletUser === selectedUser._id ? (
+                  <div className="mt-4">
+                    <label className="block font-semibold mb-2">Edit Wallet Balance</label>
+                    <input 
+                      type="number" 
+                      value={newWalletAmount} 
+                      onChange={(e) => setNewWalletAmount(e.target.value)} 
+                      placeholder="Wallet amount" 
+                      className="w-full border p-2 rounded-lg mb-2" 
+                    />
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => updateUserWallet(selectedUser._id)} 
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg flex-1"
+                      >
+                        Save
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setEditingWalletUser(null);
+                          setNewWalletAmount("");
+                        }} 
+                        className="bg-gray-500 text-white px-4 py-2 rounded-lg flex-1"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <label className="block font-semibold mb-2">Update Password</label>
+                    <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" className="w-full border p-2 rounded-lg mb-2" />
+                    <button onClick={updatePassword} className="bg-green-500 text-white px-4 py-2 rounded-lg w-full">Update Password</button>
+                  </div>
+                )}
 
                 <button onClick={() => setSelectedUser(null)} className="mt-4 bg-gray-500 text-white px-4 py-2 rounded-lg w-full">Close</button>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Redemptions Tab */}
+      {activeTab === "redemptions" && (
+        <div className="bg-white rounded-2xl shadow-md p-6">
+          <h3 className="text-xl font-semibold mb-4">Wallet Redemption Requests</h3>
+          
+          {redemptions.length === 0 ? (
+            <p className="text-gray-500 text-center py-6">No redemption requests</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="text-left bg-purple-100">
+                    <th className="p-3 border">User Name</th>
+                    <th className="p-3 border">Phone</th>
+                    <th className="p-3 border">Amount</th>
+                    <th className="p-3 border">Status</th>
+                    <th className="p-3 border">Requested Date</th>
+                    <th className="p-3 border text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {redemptions.map((redemption) => (
+                    <tr key={redemption._id} className="hover:bg-gray-50">
+                      <td className="p-3 border">{redemption.userName}</td>
+                      <td className="p-3 border">{redemption.userPhone}</td>
+                      <td className="p-3 border font-semibold">₹{redemption.amount}</td>
+                      <td className="p-3 border">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          redemption.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                          redemption.status === "processing" ? "bg-blue-100 text-blue-700" :
+                          "bg-green-100 text-green-700"
+                        }`}>
+                          {redemption.status.charAt(0).toUpperCase() + redemption.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="p-3 border text-sm">{new Date(redemption.requestedAt).toLocaleDateString()}</td>
+                      <td className="p-3 border text-center space-x-2">
+                        {redemption.status === "pending" && (
+                          <button 
+                            onClick={() => updateRedemptionStatus(redemption._id, "processing")}
+                            className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
+                          >
+                            Process
+                          </button>
+                        )}
+                        {redemption.status === "processing" && (
+                          <button 
+                            onClick={() => updateRedemptionStatus(redemption._id, "processed")}
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg text-sm"
+                          >
+                            Complete
+                          </button>
+                        )}
+                        {redemption.status === "processed" && (
+                          <span className="text-green-600 font-semibold">✓ Completed</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -447,7 +610,7 @@ export default function AdminDashboard() {
                 <textarea value={lessonForm.content} onChange={(e) => setLessonForm({ ...lessonForm, content: e.target.value })} className="w-full border p-2 rounded-lg h-32" required />
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold">{editingLesson ? "Update" : "Add"} Lesson</button>
+                <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold">{editingLesson ? "Update" : "Add"} Lesson</button>
                 {editingLesson && (
                   <button type="button" onClick={() => { setEditingLesson(null); setLessonForm({ level: "beginner", lessonNumber: 1, title: "", content: "" }); }} className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">Cancel</button>
                 )}
@@ -461,7 +624,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="text-left bg-orange-100">
+                  <tr className="text-left bg-purple-100">
                     <th className="p-3 border">Level</th>
                     <th className="p-3 border">Lesson #</th>
                     <th className="p-3 border">Title</th>
@@ -539,7 +702,7 @@ export default function AdminDashboard() {
               <button type="button" onClick={addQuestion} className="bg-blue-500 text-white px-4 py-2 rounded-lg">+ Add Question</button>
 
               <div className="flex gap-2">
-                <button type="submit" className="bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold">{editingQuiz ? "Update" : "Add"} Quiz</button>
+                <button type="submit" className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold">{editingQuiz ? "Update" : "Add"} Quiz</button>
                 {editingQuiz && (
                   <button type="button" onClick={() => { setEditingQuiz(null); setQuizForm({ level: "beginner", quizNumber: 5, questions: [{ question: "", options: ["", "", "", ""], correctAnswer: "" }] }); }} className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">Cancel</button>
                 )}
@@ -553,7 +716,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="text-left bg-orange-100">
+                  <tr className="text-left bg-purple-100">
                     <th className="p-3 border">Level</th>
                     <th className="p-3 border">Quiz #</th>
                     <th className="p-3 border">After Lesson</th>

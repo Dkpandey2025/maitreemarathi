@@ -1,379 +1,7 @@
-// import { Phone } from "lucide-react";
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-
-// // export default function LoginPage() {
-// //   const [phone, setPhone] = useState("");
-// //   const [password, setPassword] = useState("");
-// //   const navigate = useNavigate();
-
-// //   const handleLogin = (e) => {
-// //     e.preventDefault();
-// //     const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
-// //     const user = users.find(u => u.phone === phone && u.password === password);
-
-// //     if (user) {
-// //       localStorage.setItem("loggedInUser", JSON.stringify(user));
-// //       navigate("/home");
-// //     } else {
-// //       alert("Invalid phone or password");
-// //     }
-// //   };
-
-// //   return (
-// //     <div className="flex items-center justify-center min-h-screen bg-orange-50">
-// //       <form
-// //         onSubmit={handleLogin}
-// //         className="bg-white p-8 rounded-2xl shadow-lg w-96"
-// //       >
-// //         <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
-// //           Login to Maitree Marathi
-// //         </h2>
-// //         <input
-// //           type="tel"
-// //           placeholder="Mobile Number"
-// //           value={phone}
-// //           onChange={(e) => setPhone(e.target.value)}
-// //           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-// //           required
-// //         />
-// //         <input
-// //           type="password"
-// //           placeholder="Password"
-// //           value={password}
-// //           onChange={(e) => setPassword(e.target.value)}
-// //           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-// //           required
-// //         />
-// //         <button
-// //           type="submit"
-// //           className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
-// //         >
-// //           Login
-// //         </button>
-// //         <p className="text-center text-sm mt-4">
-// //           Don’t have an account?{" "}
-// //           <Link to="/register" className="text-orange-600 font-semibold">
-// //             Register
-// //           </Link>
-// //         </p>
-// //       </form>
-// //     </div>
-// //   );
-// // }
-// function Login(){
-//   const[Phone,setEmail]=useState("");
-//   const[password,setPassword]=useState("");
-//   const navigate=useNavigate();
-//   const handleLogin=(e)=>{
-//     e.preventDefault();
-//     axios.post("http://localhost:5000/login",{
-//       Phone,
-//       password,
-//     }).then((res)=>{
-//       console.log("Login response:", res.data);
-//       if(res.data.status==="success"){
-//         navigate("/home");
-//       }else{
-//         alert("Invalid credentials");
-//       }
-//     }).catch((error)=>{
-//       console.error("Login error:", error);
-//       alert("An error occurred during login. Please try again.");
-//     });
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-orange-50">
-//       <form
-//         onSubmit={handleLogin}
-//         className="bg-white p-8 rounded-2xl shadow-lg w-96"
-//       >
-//         <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
-//           Login to Maitree Marathi
-//         </h2>
-//         <input
-//           type="Phone"
-//           placeholder="Phone"
-//           value={Phone}
-//           onChange={(e) => setPhone(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-//         <button
-//           type="submit"
-//           className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
-//         >
-//           Login
-//         </button>
-//         <p className="text-center text-sm mt-4">
-//           Don’t have an account?{" "}
-//           <Link to="/register" className="text-orange-600 font-semibold">
-//             Register
-//           </Link>
-//         </p>
-//       </form>
-//     </div>
-//   );
-// }
-
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// export default function Login() {
-//   const [phone, setPhone] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await axios.post("http://localhost:5000/login", {
-//         phone,
-//         password,
-//       });
-
-//       console.log("Login response:", res.data);
-
-//       if (res.data.status === "success") {
-//         alert("Login successful!");
-//         localStorage.setItem("loggedInUser", JSON.stringify(res.data.user));
-//         navigate("/home");
-//       } else {
-//         alert(res.data.message || "Invalid credentials");
-//       }
-//     } catch (error) {
-//       console.error("Login error:", error);
-//       alert("An error occurred during login. Please try again.");
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-orange-50">
-//       <form
-//         onSubmit={handleLogin}
-//         className="bg-white p-8 rounded-2xl shadow-lg w-96"
-//       >
-//         <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
-//           Login to Maitree Marathi
-//         </h2>
-
-//         <input
-//           type="tel"
-//           placeholder="Mobile Number"
-//           value={phone}
-//           onChange={(e) => setPhone(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <button
-//           type="submit"
-//           className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
-//         >
-//           Login
-//         </button>
-
-//         <p className="text-center text-sm mt-4">
-//           Don’t have an account?{" "}
-//           <Link to="/register" className="text-orange-600 font-semibold">
-//             Register
-//           </Link>
-//         </p>
-//       </form>
-//     </div>
-//   );
-// }
-
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// export default function Login() {
-//   const [phone, setPhone] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       const res = await axios.post("http://localhost:5000/login", {
-//         phone,
-//         password,
-//       });
-
-//       console.log("Login response:", res.data);
-
-//       if (res.data.status === "success") {
-//         alert("Login successful!");
-
-//         // 🧹 Remove old key (important)
-//         localStorage.removeItem("loggedInUser");
-
-//         // ✅ Save correct user data
-//         localStorage.setItem("user", JSON.stringify(res.data.user));
-
-//         navigate("/home");
-//       } else {
-//         alert(res.data.message || "Invalid credentials");
-//       }
-//     } catch (error) {
-//       console.error("Login error:", error);
-//       alert("An error occurred during login. Please try again.");
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-orange-50">
-//       <form
-//         onSubmit={handleLogin}
-//         className="bg-white p-8 rounded-2xl shadow-lg w-96"
-//       >
-//         <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
-//           Login to Maitree Marathi
-//         </h2>
-
-//         <input
-//           type="tel"
-//           placeholder="Mobile Number"
-//           value={phone}
-//           onChange={(e) => setPhone(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <button
-//           type="submit"
-//           className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
-//         >
-//           Login
-//         </button>
-
-//         <p className="text-center text-sm mt-4">
-//           Don’t have an account?{" "}
-//           <Link to="/register" className="text-orange-600 font-semibold">
-//             Register
-//           </Link>
-//         </p>
-//       </form>
-//     </div>
-//   );
-// }
-
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-
-// export default function Login() {
-//   const [phone, setPhone] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const res = await axios.post("http://localhost:5000/login", {
-//         phone,
-//         password,
-//       });
-
-//       console.log("Login API Response:", res.data);
-
-//       // FIXED: Match your backend response
-//       if (res.data.status === "success") {
-//         alert("Login Successful!");
-
-//         // Save user data
-//         localStorage.setItem("loggedInUser", JSON.stringify(res.data.user));
-
-//         // Navigate to dashboard
-//         navigate("/home", { replace: true });
-//       } else {
-//         alert(res.data.message || "Invalid credentials!");
-//       }
-//     } catch (err) {
-//       console.log("Login error:", err);
-//       alert("Something went wrong during login!");
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-orange-50">
-//       <form
-//         onSubmit={handleLogin}
-//         className="bg-white p-8 rounded-2xl shadow-lg w-96"
-//       >
-//         <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
-//           Login to Maitree Marathi
-//         </h2>
-
-//         <input
-//           type="tel"
-//           placeholder="Mobile Number"
-//           value={phone}
-//           onChange={(e) => setPhone(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
-//           required
-//         />
-
-//         <button
-//           type="submit"
-//           className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
-//         >
-//           Login
-//         </button>
-
-//         <p className="text-center text-sm mt-4">
-//           Don’t have an account?{" "}
-//           <Link to="/register" className="text-orange-600 font-semibold">
-//             Register
-//           </Link>
-//         </p>
-//       </form>
-//     </div>
-//   );
-// }
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ArrowLeft } from "lucide-react";
 
 export default function Login() {
   const [phone, setPhone] = useState("");
@@ -426,12 +54,21 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-orange-50">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 p-4 sm:p-6">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all z-10"
+        aria-label="Go back to home"
+      >
+        <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+      </button>
+
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded-2xl shadow-lg w-96"
+        className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl shadow-lg w-full max-w-sm sm:max-w-md"
       >
-        <h2 className="text-2xl font-bold text-orange-600 mb-6 text-center">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-600 mb-6 sm:mb-8 text-center">
           Login to Maitree Marathi
         </h2>
 
@@ -440,7 +77,7 @@ export default function Login() {
           placeholder="Mobile Number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
+          className="w-full mb-4 sm:mb-5 p-3 sm:p-4 text-base sm:text-lg border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
           required
         />
 
@@ -449,26 +86,26 @@ export default function Login() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 p-3 border rounded-lg focus:ring-2 focus:ring-orange-500"
+          className="w-full mb-6 sm:mb-8 p-3 sm:p-4 text-base sm:text-lg border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
           required
         />
 
         <button
           type="submit"
-          className="w-full bg-orange-600 text-white font-semibold py-3 rounded-lg hover:bg-orange-700"
+          className="w-full bg-purple-600 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg rounded-lg sm:rounded-xl hover:bg-purple-700 transition shadow-md hover:shadow-lg"
         >
           Login
         </button>
 
-        <p className="text-center text-sm mt-4">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-orange-600 font-semibold">
+        <p className="text-center text-sm sm:text-base mt-6 sm:mt-8">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-purple-600 font-semibold hover:text-purple-700">
             Register
           </Link>
         </p>
 
-        <p className="text-center text-sm mt-2">
-          <Link to="/admin-login" className="text-gray-600 hover:text-gray-800">
+        <p className="text-center text-xs sm:text-sm mt-4 sm:mt-6">
+          <Link to="/admin-login" className="text-gray-600 hover:text-gray-800 transition">
             Admin Login →
           </Link>
         </p>

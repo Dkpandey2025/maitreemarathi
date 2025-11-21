@@ -58,7 +58,7 @@ export default function ExpertLessonsPage() {
   if (!isUnlocked) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-orange-50 p-6 flex items-center justify-center">
+        <div className="min-h-screen bg-purple-50 p-6 flex items-center justify-center">
           <p className="text-xl">Checking access...</p>
         </div>
       </DashboardLayout>
@@ -67,15 +67,15 @@ export default function ExpertLessonsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-orange-50 p-6">
+      <div className="min-h-screen bg-purple-50 p-6">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => navigate("/learn")}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-orange-200"
+            className="p-2 bg-white rounded-full shadow-md hover:bg-purple-200"
           >
             ←
           </button>
-          <h1 className="text-3xl font-bold text-orange-600">Expert Lessons</h1>
+          <h1 className="text-3xl font-bold text-purple-600">Expert Lessons</h1>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">

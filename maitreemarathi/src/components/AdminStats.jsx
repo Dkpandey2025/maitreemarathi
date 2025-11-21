@@ -1,5 +1,4 @@
 import React from "react";
-
 export default function AdminStats({ title, value }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-md border text-center">

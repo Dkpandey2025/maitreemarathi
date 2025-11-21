@@ -45,8 +45,8 @@ export default function MarathiLearningAssistant() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-100 to-orange-50 flex flex-col items-center py-10 px-4">
-      <h1 className="text-3xl font-bold text-orange-600 mb-6">
+    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-purple-50 flex flex-col items-center py-10 px-4">
+      <h1 className="text-3xl font-bold text-purple-600 mb-6">
         🇮🇳 Learn Marathi with AI (Gemini)
       </h1>
 
@@ -57,7 +57,7 @@ export default function MarathiLearningAssistant() {
               key={index}
               className={`p-3 rounded-xl text-sm whitespace-pre-line ${
                 msg.sender === "user"
-                  ? "bg-orange-500 text-white self-end"
+                  ? "bg-purple-600 text-white self-end"
                   : "bg-gray-100 text-gray-800 self-start"
               }`}
             >
@@ -76,12 +76,12 @@ export default function MarathiLearningAssistant() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Ask something about Marathi..."
-            className="flex-1 border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="flex-1 border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <button
             onClick={handleSend}
             disabled={loading}
-            className="bg-orange-500 text-white px-4 py-2 rounded-xl hover:bg-orange-600 transition-all"
+            className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-all"
           >
             Send
           </button>

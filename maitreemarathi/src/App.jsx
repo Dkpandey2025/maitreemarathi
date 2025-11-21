@@ -131,6 +131,7 @@
 // }
 
 // src/App.jsx
+
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -163,10 +164,11 @@ import PlanSelectionPage from "./pages/PlanselectionPage";
 import QuizPage from "./pages/QuizPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import AILearningPage from "./pages/AILearningPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-purple-50">
       <main className="flex-1">
         <Routes>
           {/* 🌍 Public Routes */}
@@ -176,6 +178,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/translate" element={<TranslatePage />} />
           <Route path="/learn-marathi" element={<MarathiLearningAssistant />} />
 
@@ -249,6 +252,16 @@ export default function App() {
             }
           />
 
+          {/* AI Learning Page */}
+          <Route
+            path="/ai-learn"
+            element={
+              <ProtectedRoute>
+                <AILearningPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/refer"
             element={
@@ -270,14 +283,6 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <WalletPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/support"
-            element={
-              <ProtectedRoute>
-                <SupportPage />
               </ProtectedRoute>
             }
           />

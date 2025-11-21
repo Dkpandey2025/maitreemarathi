@@ -86,7 +86,7 @@ export default function PaymentSuccessPage() {
             <p className="text-gray-600 mb-4">{message}</p>
             <button
               onClick={() => navigate("/plan")}
-              className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700"
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
             >
               Try Again
             </button>

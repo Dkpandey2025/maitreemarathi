@@ -10,7 +10,7 @@ export default function BottomNav() {
         {/* Home */}
         <NavLink
           to="/home"
-          className="flex flex-col items-center text-gray-600 hover:text-orange-600"
+          className="flex flex-col items-center text-gray-600 hover:text-purple-600"
         >
           <Home size={22} />
           <span className="text-xs">Home</span>
@@ -19,7 +19,7 @@ export default function BottomNav() {
         {/* Translate */}
         <NavLink
           to="/translate"
-          className="flex flex-col items-center text-gray-600 hover:text-orange-600"
+          className="flex flex-col items-center text-gray-600 hover:text-purple-600"
         >
           <Languages size={22} />
           <span className="text-xs">Translate</span>
@@ -28,7 +28,7 @@ export default function BottomNav() {
         {/* AI Learn */}
         <NavLink
           to="/ai"
-          className="flex flex-col items-center text-gray-600 hover:text-orange-600"
+          className="flex flex-col items-center text-gray-600 hover:text-purple-600"
         >
           <Brain size={22} />
           <span className="text-xs">AI Learn</span>
@@ -37,7 +37,7 @@ export default function BottomNav() {
         {/* Refer */}
         <NavLink
           to="/refer"
-          className="flex flex-col items-center text-gray-600 hover:text-orange-600"
+          className="flex flex-col items-center text-gray-600 hover:text-purple-600"
         >
           <Gift size={22} />
           <span className="text-xs">Refer</span>

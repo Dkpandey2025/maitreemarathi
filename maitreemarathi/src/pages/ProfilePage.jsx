@@ -84,7 +84,7 @@ export default function ProfilePage() {
               className="w-28 h-28 rounded-full mb-4 shadow"
             />
 
-            <h2 className="text-2xl font-bold text-orange-600">
+            <h2 className="text-2xl font-bold text-purple-600">
               {user?.name || "User"}
             </h2>
 
@@ -99,9 +99,9 @@ export default function ProfilePage() {
           <hr className="my-6 border-gray-200" />
 
           {/* Subscription Section */}
-          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-xl shadow-sm">
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-5 rounded-xl shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <Crown className="text-orange-600" size={24} />
+              <Crown className="text-purple-600" size={24} />
               <h3 className="text-lg font-bold text-gray-800">Subscription Status</h3>
             </div>
 
@@ -121,10 +121,10 @@ export default function ProfilePage() {
                 {subscription.type === "monthly" && subscription.daysRemaining !== null && (
                   <div className="mt-3 bg-white p-3 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
-                      <Calendar size={18} className="text-orange-600" />
+                      <Calendar size={18} className="text-purple-600" />
                       <span className="text-sm font-semibold text-gray-700">Days Remaining</span>
                     </div>
-                    <div className="text-3xl font-bold text-orange-600">
+                    <div className="text-3xl font-bold text-purple-600">
                       {subscription.daysRemaining > 0 ? subscription.daysRemaining : 0} days
                     </div>
                     {subscription.daysRemaining <= 5 && subscription.daysRemaining > 0 && (
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-600 mb-2">Access limited to first 3 beginner lessons</p>
                     <button
                       onClick={() => navigate("/plan")}
-                      className="w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
+                      className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-sm font-semibold"
                     >
                       Upgrade Now
                     </button>
@@ -162,7 +162,7 @@ export default function ProfilePage() {
           <hr className="my-6 border-gray-200" />
 
           {/* Wallet Section */}
-          <div className="bg-orange-50 p-4 rounded-xl flex items-center justify-between shadow-sm">
+          <div className="bg-purple-50 p-4 rounded-xl flex items-center justify-between shadow-sm">
             <div>
               <p className="text-gray-700 text-sm font-semibold">Wallet Balance</p>
               <h3 className="text-xl font-bold text-green-600">
@@ -172,7 +172,7 @@ export default function ProfilePage() {
 
             <button
               onClick={goToWallet}
-              className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-xl hover:bg-orange-700 transition"
+              className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition"
             >
               <Wallet size={18} />
               Open Wallet

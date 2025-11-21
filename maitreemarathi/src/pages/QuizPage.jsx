@@ -62,7 +62,7 @@ export default function QuizPage() {
   if (!quiz) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-orange-50 p-6 flex items-center justify-center">
+        <div className="min-h-screen bg-purple-50 p-6 flex items-center justify-center">
           <p className="text-xl">Loading quiz...</p>
         </div>
       </DashboardLayout>
@@ -72,7 +72,7 @@ export default function QuizPage() {
   if (submitted && result) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-orange-50 p-6 flex items-center justify-center">
+        <div className="min-h-screen bg-purple-50 p-6 flex items-center justify-center">
           <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
             <div className={`text-6xl mb-4 ${result.passed ? "text-green-500" : "text-red-500"}`}>
               {result.passed ? "🎉" : "😔"}
@@ -97,7 +97,7 @@ export default function QuizPage() {
             )}
             <button
               onClick={() => navigate(-1)}
-              className="bg-orange-600 text-white px-8 py-3 rounded-xl font-semibold w-full"
+              className="bg-purple-600 text-white px-8 py-3 rounded-xl font-semibold w-full"
             >
               Back to Lessons
             </button>
@@ -109,15 +109,15 @@ export default function QuizPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-orange-50 p-6">
+      <div className="min-h-screen bg-purple-50 p-6">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-orange-200"
+            className="p-2 bg-white rounded-full shadow-md hover:bg-purple-200"
           >
             ←
           </button>
-          <h1 className="text-3xl font-bold text-orange-600">
+          <h1 className="text-3xl font-bold text-purple-600">
             Quiz {quizNumber} - {level}
           </h1>
         </div>
@@ -138,7 +138,7 @@ export default function QuizPage() {
                 {question.options.map((option, optIndex) => (
                   <label
                     key={optIndex}
-                    className="flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-orange-50 border-2 border-transparent hover:border-orange-300"
+                    className="flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-purple-50 border-2 border-transparent hover:border-purple-300"
                   >
                     <input
                       type="radio"
@@ -158,7 +158,7 @@ export default function QuizPage() {
           <div className="flex justify-end mt-8">
             <button
               onClick={handleSubmit}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg"
             >
               Submit Quiz
             </button>

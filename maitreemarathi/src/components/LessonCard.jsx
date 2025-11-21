@@ -13,7 +13,7 @@ export default function LessonCard({ title, locked, onOpen }) {
       ) : (
         <button
           onClick={onOpen}
-          className="mt-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+          className="mt-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
         >
           Open Lesson
         </button>

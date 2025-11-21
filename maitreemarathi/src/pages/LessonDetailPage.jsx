@@ -42,7 +42,7 @@ export default function LessonDetailPage() {
   if (!lesson) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-orange-50 p-6 flex items-center justify-center">
+        <div className="min-h-screen bg-purple-50 p-6 flex items-center justify-center">
           <p className="text-xl">Loading lesson...</p>
         </div>
       </DashboardLayout>
@@ -51,22 +51,22 @@ export default function LessonDetailPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-orange-50 p-6">
+      <div className="min-h-screen bg-purple-50 p-6">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-orange-200"
+            className="p-2 bg-white rounded-full shadow-md hover:bg-purple-200"
           >
             ←
           </button>
-          <h1 className="text-3xl font-bold text-orange-600">
+          <h1 className="text-3xl font-bold text-purple-600">
             Lesson {lesson.lessonNumber}: {lesson.title}
           </h1>
         </div>
 
         <div className="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
           <div className="mb-6">
-            <span className="inline-block bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-semibold capitalize">
+            <span className="inline-block bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-semibold capitalize">
               {lesson.level}
             </span>
           </div>
@@ -80,7 +80,7 @@ export default function LessonDetailPage() {
           <div className="mt-8 flex justify-end">
             <button
               onClick={markAsCompleted}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-lg"
             >
               ✓ I've Read This Lesson
             </button>

@@ -211,9 +211,9 @@ export default function PaymentPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex justify-center items-center p-6">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 border border-orange-200">
-        <h2 className="text-3xl font-bold text-center text-orange-600 mb-1">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 flex justify-center items-center p-6">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 border border-purple-200">
+        <h2 className="text-3xl font-bold text-center text-purple-600 mb-1">
           Secure Payment
         </h2>
         <p className="text-center text-gray-600 mb-6 text-sm">

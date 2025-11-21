@@ -43,92 +43,135 @@ export default function BeginnerPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-orange-50 p-6">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 p-4 sm:p-6 lg:p-8">
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <button
             onClick={() => navigate("/home")}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-orange-100"
+            className="flex items-center justify-center p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all duration-200"
+            aria-label="Go back"
           >
-            ←
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
-          <h1 className="text-3xl font-bold text-orange-600">मराठी सीखें</h1>
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">मराठी सीखें</h1>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">Choose your learning level</p>
+          </div>
         </div>
 
-        <div className="max-w-xl mx-auto space-y-4">
+        <div className="max-w-2xl mx-auto space-y-4 sm:space-y-5">
           {/* Beginners */}
           <div
-            className={`p-5 rounded-xl shadow-md border-l-4 ${
+            className={`group relative p-5 sm:p-6 rounded-2xl shadow-lg border-l-4 transition-all duration-300 ${
               levelStatus.beginner.unlocked
-                ? "bg-white hover:shadow-lg cursor-pointer border-orange-500"
+                ? "bg-gradient-to-r from-white to-purple-50 hover:shadow-2xl hover:scale-[1.02] cursor-pointer border-purple-500"
                 : "bg-gray-200 cursor-not-allowed opacity-60 border-gray-400"
             }`}
             onClick={() => handleLevelClick("beginner", levelStatus.beginner.unlocked)}
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-semibold">I. Beginners {!levelStatus.beginner.unlocked && "🔒"}</h2>
-                <p className="text-gray-600">शुरुआत से सीखने वालों के लिए पाठ</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">📚</span>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                    I. Beginners {!levelStatus.beginner.unlocked && "🔒"}
+                  </h2>
+                </div>
+                <p className="text-sm sm:text-base text-gray-600">शुरुआत से सीखने वालों के लिए पाठ</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Progress</p>
-                <p className="text-lg font-bold text-orange-600">
-                  {levelStatus.beginner.completed}/{levelStatus.beginner.total}
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="text-center bg-purple-100 px-4 py-2 rounded-lg">
+                  <p className="text-xs text-gray-600">Progress</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                    {levelStatus.beginner.completed}/{levelStatus.beginner.total}
+                  </p>
+                </div>
+                {levelStatus.beginner.unlocked && (
+                  <svg className="w-6 h-6 text-purple-500 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
               </div>
             </div>
           </div>
 
           {/* Medium */}
           <div
-            className={`p-5 rounded-xl shadow-md border-l-4 ${
+            className={`group relative p-5 sm:p-6 rounded-2xl shadow-lg border-l-4 transition-all duration-300 ${
               levelStatus.medium.unlocked
-                ? "bg-white hover:shadow-lg cursor-pointer border-blue-500"
+                ? "bg-gradient-to-r from-white to-purple-50 hover:shadow-2xl hover:scale-[1.02] cursor-pointer border-purple-500"
                 : "bg-gray-200 cursor-not-allowed opacity-60 border-gray-400"
             }`}
             onClick={() => handleLevelClick("medium", levelStatus.medium.unlocked)}
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-semibold">II. Medium {!levelStatus.medium.unlocked && "🔒"}</h2>
-                <p className="text-gray-600">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">📖</span>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                    II. Medium {!levelStatus.medium.unlocked && "🔒"}
+                  </h2>
+                </div>
+                <p className="text-sm sm:text-base text-gray-600">
                   {levelStatus.medium.unlocked ? "मध्यम स्तर के पाठ" : "Beginners पूरा होने पर unlock होगा"}
                 </p>
               </div>
-              {levelStatus.medium.unlocked && (
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">Progress</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {levelStatus.medium.completed}/{levelStatus.medium.total}
-                  </p>
-                </div>
-              )}
+              <div className="flex items-center gap-4">
+                {levelStatus.medium.unlocked && (
+                  <>
+                    <div className="text-center bg-purple-100 px-4 py-2 rounded-lg">
+                      <p className="text-xs text-gray-600">Progress</p>
+                      <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                        {levelStatus.medium.completed}/{levelStatus.medium.total}
+                      </p>
+                    </div>
+                    <svg className="w-6 h-6 text-purple-500 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Expert */}
           <div
-            className={`p-5 rounded-xl shadow-md border-l-4 ${
+            className={`group relative p-5 sm:p-6 rounded-2xl shadow-lg border-l-4 transition-all duration-300 ${
               levelStatus.expert.unlocked
-                ? "bg-white hover:shadow-lg cursor-pointer border-green-500"
+                ? "bg-gradient-to-r from-white to-purple-50 hover:shadow-2xl hover:scale-[1.02] cursor-pointer border-purple-500"
                 : "bg-gray-200 cursor-not-allowed opacity-60 border-gray-400"
             }`}
             onClick={() => handleLevelClick("expert", levelStatus.expert.unlocked)}
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-semibold">III. Expert {!levelStatus.expert.unlocked && "🔒"}</h2>
-                <p className="text-gray-600">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">🎓</span>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                    III. Expert {!levelStatus.expert.unlocked && "🔒"}
+                  </h2>
+                </div>
+                <p className="text-sm sm:text-base text-gray-600">
                   {levelStatus.expert.unlocked ? "उन्नत स्तर के पाठ" : "Medium पूरा होने पर unlock होगा"}
                 </p>
               </div>
-              {levelStatus.expert.unlocked && (
-                <div className="text-right">
-                  <p className="text-sm text-gray-500">Progress</p>
-                  <p className="text-lg font-bold text-green-600">
-                    {levelStatus.expert.completed}/{levelStatus.expert.total}
-                  </p>
-                </div>
-              )}
+              <div className="flex items-center gap-4">
+                {levelStatus.expert.unlocked && (
+                  <>
+                    <div className="text-center bg-purple-100 px-4 py-2 rounded-lg">
+                      <p className="text-xs text-gray-600">Progress</p>
+                      <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                        {levelStatus.expert.completed}/{levelStatus.expert.total}
+                      </p>
+                    </div>
+                    <svg className="w-6 h-6 text-purple-500 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

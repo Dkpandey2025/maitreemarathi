@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/User");
 const Lesson = require("../models/Lesson");
 const Quiz = require("../models/Quiz");
+const Redemption = require("../models/Redemption");
 
 const router = express.Router();
 
@@ -261,6 +262,61 @@ router.post("/submit-quiz", async (req, res) => {
       totalQuestions,
       percentage: percentage.toFixed(2)
     });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// =========================
+// REQUEST WALLET REDEMPTION
+// =========================
+router.post("/request-redemption", async (req, res) => {
+  try {
+    const { phone, amount } = req.body;
+    
+    const user = await User.findOne({ phone });
+    if (!user) return res.json({ status: "error", message: "User not found" });
+    
+    if (user.wallet < amount) {
+      return res.json({ status: "error", message: "Insufficient wallet balance" });
+    }
+    
+    if (amount < 100) {
+      return res.json({ status: "error", message: "Minimum redemption amount is ₹100" });
+    }
+    
+    // Create redemption request
+    const redemption = await Redemption.create({
+      userId: user._id,
+      userName: user.name,
+      userPhone: user.phone,
+      amount,
+      status: "pending"
+    });
+    
+    res.json({ 
+      status: "success", 
+      message: "Redemption request submitted successfully",
+      redemption 
+    });
+  } catch (err) {
+    console.error("Redemption error:", err);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+});
+
+// =========================
+// GET USER REDEMPTION HISTORY
+// =========================
+router.get("/redemptions/:phone", async (req, res) => {
+  try {
+    const user = await User.findOne({ phone: req.params.phone });
+    if (!user) return res.json({ status: "error", message: "User not found" });
+    
+    const redemptions = await Redemption.find({ userId: user._id })
+      .sort({ requestedAt: -1 });
+    
+    res.json({ status: "success", redemptions });
   } catch (err) {
     res.status(500).json({ status: "error", message: "Server error" });
   }
