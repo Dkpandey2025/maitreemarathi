@@ -97,6 +97,12 @@ export default function Login() {
           Login
         </button>
 
+        <p className="text-center text-xs sm:text-sm mt-4 sm:mt-6">
+          <Link to="/forgot-password" className="text-purple-600 hover:text-purple-700 font-semibold transition">
+            Forgot Password?
+          </Link>
+        </p>
+
         <p className="text-center text-sm sm:text-base mt-6 sm:mt-8">
           Don't have an account?{" "}
           <Link to="/register" className="text-purple-600 font-semibold hover:text-purple-700">
@@ -104,11 +110,11 @@ export default function Login() {
           </Link>
         </p>
 
-        <p className="text-center text-xs sm:text-sm mt-4 sm:mt-6">
+        {/* <p className="text-center text-xs sm:text-sm mt-4 sm:mt-6">
           <Link to="/admin-login" className="text-gray-600 hover:text-gray-800 transition">
             Admin Login →
           </Link>
-        </p>
+        </p> */}
       </form>
     </div>
   );

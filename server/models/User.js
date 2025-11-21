@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true, unique: true },
+  email: { type: String, default: null },
   password: { type: String, required: true },
 
   // Referral System Fields
@@ -42,6 +43,10 @@ const UserSchema = new mongoose.Schema({
   
   // Referral Bonus Tracking
   referralBonusAwarded: { type: Boolean, default: false }, // Prevents duplicate bonus
+
+  // Password Reset Fields
+  resetToken: { type: String, default: null },
+  resetTokenExpiry: { type: Date, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);

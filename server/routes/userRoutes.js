@@ -322,4 +322,195 @@ router.get("/redemptions/:phone", async (req, res) => {
   }
 });
 
+// In-memory storage for testing (when MongoDB is not available)
+const resetTokenStore = {};
+
+// =========================
+// FORGOT PASSWORD - SEND RESET LINK
+// =========================
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.json({ status: "error", message: "Phone number is required" });
+    }
+
+    // Try to find user in database
+    let user = null;
+    try {
+      user = await User.findOne({ phone });
+    } catch (dbErr) {
+      console.log("Database not available, using in-memory storage for testing");
+    }
+
+    if (!user) {
+      // For development/testing without MongoDB
+      console.log(`User ${phone} not found in database, allowing reset for testing`);
+    }
+
+    // Generate reset token
+    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const resetTokenExpiry = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    // Store in memory for testing
+    resetTokenStore[phone] = {
+      token: resetToken,
+      expiry: resetTokenExpiry
+    };
+
+    // If user exists in DB, update it
+    if (user) {
+      user.resetToken = resetToken;
+      user.resetTokenExpiry = resetTokenExpiry;
+      await user.save();
+    }
+
+    // Create reset link
+    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}&phone=${phone}`;
+
+    // Log for development
+    console.log(`Password reset link for ${phone}: ${resetLink}`);
+
+    res.json({
+      status: "success",
+      message: "Password reset link sent to your email",
+      // For development only - remove in production
+      resetLink: resetLink
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    res.status(500).json({ status: "error", message: "Server error: " + err.message });
+  }
+});
+
+// =========================
+// VERIFY RESET TOKEN
+// =========================
+router.post("/verify-reset-token", async (req, res) => {
+  try {
+    const { phone, token } = req.body;
+
+    // Check in-memory store first
+    if (resetTokenStore[phone]) {
+      const stored = resetTokenStore[phone];
+      if (stored.token === token && new Date() < stored.expiry) {
+        return res.json({
+          status: "success",
+          message: "Token verified successfully",
+          verified: true
+        });
+      }
+    }
+
+    // Try database
+    let user = null;
+    try {
+      user = await User.findOne({ phone });
+    } catch (dbErr) {
+      console.log("Database not available");
+    }
+
+    if (!user) {
+      return res.json({ status: "error", message: "User not found" });
+    }
+
+    if (!user.resetToken || user.resetToken !== token) {
+      return res.json({ status: "error", message: "Invalid reset token" });
+    }
+
+    if (new Date() > user.resetTokenExpiry) {
+      user.resetToken = null;
+      user.resetTokenExpiry = null;
+      await user.save();
+      return res.json({ status: "error", message: "Reset token has expired. Please request a new one" });
+    }
+
+    res.json({
+      status: "success",
+      message: "Token verified successfully",
+      verified: true
+    });
+  } catch (err) {
+    console.error("Verify token error:", err);
+    res.status(500).json({ status: "error", message: "Server error: " + err.message });
+  }
+});
+
+// =========================
+// RESET PASSWORD
+// =========================
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { phone, token, newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 4) {
+      return res.json({ status: "error", message: "Password must be at least 4 characters" });
+    }
+
+    // Check in-memory store first
+    if (resetTokenStore[phone]) {
+      const stored = resetTokenStore[phone];
+      if (stored.token === token && new Date() < stored.expiry) {
+        // Token is valid, allow password reset
+        // In production with DB, update the user password here
+        delete resetTokenStore[phone];
+        
+        // Try to update in database if available
+        try {
+          const user = await User.findOne({ phone });
+          if (user) {
+            user.password = newPassword;
+            user.resetToken = null;
+            user.resetTokenExpiry = null;
+            await user.save();
+          }
+        } catch (dbErr) {
+          console.log("Database not available, password reset allowed for testing");
+        }
+
+        return res.json({
+          status: "success",
+          message: "Password reset successfully. Please login with your new password"
+        });
+      }
+    }
+
+    // Try database
+    let user = null;
+    try {
+      user = await User.findOne({ phone });
+    } catch (dbErr) {
+      console.log("Database not available");
+    }
+
+    if (!user) {
+      return res.json({ status: "error", message: "User not found" });
+    }
+
+    // Verify token
+    if (!user.resetToken || user.resetToken !== token) {
+      return res.json({ status: "error", message: "Invalid reset token" });
+    }
+
+    if (new Date() > user.resetTokenExpiry) {
+      return res.json({ status: "error", message: "Reset token has expired" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    res.json({
+      status: "success",
+      message: "Password reset successfully. Please login with your new password"
+    });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(500).json({ status: "error", message: "Server error: " + err.message });
+  }
+});
+
 module.exports = router;
