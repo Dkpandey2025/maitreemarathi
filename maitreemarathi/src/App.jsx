@@ -162,6 +162,7 @@ import MarathiLearningAssistant from "./components/MarathiLearningAssistant";
 import PlanSelectionPage from "./pages/PlanselectionPage";
 import QuizPage from "./pages/QuizPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 
 export default function App() {
   return (
@@ -285,6 +286,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PaymentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payment-success"
+            element={
+              <ProtectedRoute>
+                <PaymentSuccessPage />
               </ProtectedRoute>
             }
           />

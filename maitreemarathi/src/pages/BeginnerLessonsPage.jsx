@@ -24,6 +24,12 @@ export default function BeginnerLessonsPage() {
   };
 
   const handleLessonClick = (lesson) => {
+    if (lesson.requiresSubscription) {
+      if (confirm("This lesson requires a subscription. Would you like to upgrade now?")) {
+        navigate("/plan");
+      }
+      return;
+    }
     if (lesson.requiresQuiz) {
       navigate(`/quiz/beginner/${lesson.quizNumber}`);
     } else if (lesson.isUnlocked) {
@@ -52,6 +58,8 @@ export default function BeginnerLessonsPage() {
               className={`p-5 rounded-xl shadow-md border-l-4 transition ${
                 lesson.isCompleted
                   ? "bg-green-100 border-green-500"
+                  : lesson.requiresSubscription
+                  ? "bg-yellow-50 border-yellow-500 cursor-pointer hover:shadow-lg"
                   : lesson.isUnlocked
                   ? "bg-white border-orange-500 cursor-pointer hover:shadow-lg"
                   : "bg-gray-200 border-gray-400 opacity-70 cursor-not-allowed"
@@ -62,14 +70,21 @@ export default function BeginnerLessonsPage() {
                   <h2 className="text-lg font-semibold">
                     Lesson {lesson.lessonNumber}: {lesson.title}
                   </h2>
-                  {lesson.requiresQuiz && (
+                  {lesson.requiresSubscription && (
+                    <p className="text-sm text-yellow-700 font-semibold mt-1">
+                      👑 Subscription Required
+                    </p>
+                  )}
+                  {lesson.requiresQuiz && !lesson.requiresSubscription && (
                     <p className="text-sm text-red-600 font-semibold mt-1">
                       🎯 Complete Quiz {lesson.quizNumber} to unlock
                     </p>
                   )}
                 </div>
                 <span className="text-2xl">
-                  {lesson.isCompleted ? "✅" : lesson.isUnlocked ? "📖" : "🔒"}
+                  {lesson.isCompleted ? "✅" : 
+                   lesson.requiresSubscription ? "👑" :
+                   lesson.isUnlocked ? "📖" : "🔒"}
                 </span>
               </div>
             </div>

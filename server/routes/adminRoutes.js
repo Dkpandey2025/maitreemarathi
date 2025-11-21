@@ -121,6 +121,17 @@ router.get("/signup", (req, res) => {
 router.get("/users", async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ _id: -1 });
+    
+    // Check and update expired subscriptions
+    const now = new Date();
+    for (let user of users) {
+      if (user.subscriptionType === "monthly" && user.subscriptionEndDate && now > user.subscriptionEndDate) {
+        user.subscriptionStatus = "expired";
+        user.subscriptionType = "free";
+        await user.save();
+      }
+    }
+    
     res.json({ status: "success", users });
   } catch (err) {
     res.status(500).json({ status: "error", message: "Server error" });

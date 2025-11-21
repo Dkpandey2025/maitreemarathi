@@ -33,19 +33,33 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../layout/DashboardLayout";
 import { useNavigate } from "react-router-dom";
-import { Wallet, LogOut } from "lucide-react";
+import { Wallet, LogOut, Crown, Calendar } from "lucide-react";
+import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function ProfilePage() {
   const [user, setUser] = useState({});
+  const [subscription, setSubscription] = useState(null);
   const navigate = useNavigate();
 
-  // Load user data dynamically from localStorage
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
     if (loggedUser) {
-      setUser(loggedUser);  // ✅ dynamic user set here
+      setUser(loggedUser);
+      fetchSubscriptionStatus(loggedUser.phone);
     }
   }, []);
+
+  const fetchSubscriptionStatus = async (phone) => {
+    try {
+      const res = await axios.get(API_ENDPOINTS.SUBSCRIPTION_STATUS(phone));
+      if (res.data.status === "success") {
+        setSubscription(res.data.subscription);
+      }
+    } catch (err) {
+      console.error("Error fetching subscription:", err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInUser");
@@ -80,10 +94,69 @@ export default function ProfilePage() {
               Phone: {user?.phone || "Not available"}
             </p>
 
-            {/* Plan */}
-            <div className="mt-4 bg-orange-100 px-4 py-2 rounded-xl text-orange-700 text-sm font-semibold">
-              {user?.plan ? `Plan: ${user.plan}` : "Free Plan"}
+          </div>
+
+          <hr className="my-6 border-gray-200" />
+
+          {/* Subscription Section */}
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-5 rounded-xl shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Crown className="text-orange-600" size={24} />
+              <h3 className="text-lg font-bold text-gray-800">Subscription Status</h3>
             </div>
+
+            {subscription ? (
+              <>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Plan:</span>
+                  <span className={`font-bold capitalize ${
+                    subscription.type === "lifetime" ? "text-purple-600" :
+                    subscription.type === "monthly" ? "text-blue-600" : "text-gray-600"
+                  }`}>
+                    {subscription.type === "lifetime" ? "🌟 Lifetime" :
+                     subscription.type === "monthly" ? "📅 Monthly" : "🆓 Free"}
+                  </span>
+                </div>
+
+                {subscription.type === "monthly" && subscription.daysRemaining !== null && (
+                  <div className="mt-3 bg-white p-3 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Calendar size={18} className="text-orange-600" />
+                      <span className="text-sm font-semibold text-gray-700">Days Remaining</span>
+                    </div>
+                    <div className="text-3xl font-bold text-orange-600">
+                      {subscription.daysRemaining > 0 ? subscription.daysRemaining : 0} days
+                    </div>
+                    {subscription.daysRemaining <= 5 && subscription.daysRemaining > 0 && (
+                      <p className="text-xs text-red-600 mt-1">⚠️ Subscription expiring soon!</p>
+                    )}
+                    {subscription.daysRemaining <= 0 && (
+                      <p className="text-xs text-red-600 mt-1">❌ Subscription expired</p>
+                    )}
+                  </div>
+                )}
+
+                {subscription.type === "lifetime" && (
+                  <div className="mt-2 text-center">
+                    <p className="text-sm text-purple-600 font-semibold">✨ Enjoy unlimited access forever!</p>
+                  </div>
+                )}
+
+                {subscription.type === "free" && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600 mb-2">Access limited to first 3 beginner lessons</p>
+                    <button
+                      onClick={() => navigate("/plan")}
+                      className="w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition text-sm font-semibold"
+                    >
+                      Upgrade Now
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-gray-500 text-sm">Loading subscription...</p>
+            )}
           </div>
 
           <hr className="my-6 border-gray-200" />

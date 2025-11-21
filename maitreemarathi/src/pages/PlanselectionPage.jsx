@@ -123,6 +123,9 @@ export default function PlanSelectionPage() {
     const plan = plans[selected];
 
     setFromPlan(true); // Mark that user came from plan page
+    
+    // Save selected plan to localStorage for payment success page
+    localStorage.setItem("selectedPlan", plan.id);
 
     navigate(`/payment?amount=${plan.price}&plan=${plan.id}`);
   };

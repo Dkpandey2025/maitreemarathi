@@ -290,26 +290,75 @@ export default function AdminDashboard() {
                 <tr className="text-left bg-orange-100">
                   <th className="p-3 border">Name</th>
                   <th className="p-3 border">Phone</th>
+                  <th className="p-3 border">Subscription</th>
+                  <th className="p-3 border">Status</th>
+                  <th className="p-3 border">Days Left</th>
                   <th className="p-3 border">Wallet</th>
-                  <th className="p-3 border">Referral Code</th>
                   <th className="p-3 border">Referrals</th>
                   <th className="p-3 border text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="p-3 border">{user.name}</td>
-                    <td className="p-3 border">{user.phone}</td>
-                    <td className="p-3 border">₹{user.wallet}</td>
-                    <td className="p-3 border">{user.referralCode}</td>
-                    <td className="p-3 border">{user.referralCount}</td>
-                    <td className="p-3 border text-center space-x-2">
-                      <button onClick={() => viewUserDetails(user)} className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm">View</button>
-                      <button onClick={() => deleteUser(user._id)} className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm">Delete</button>
-                    </td>
-                  </tr>
-                ))}
+                {users.map((user) => {
+                  // Calculate days remaining
+                  let daysRemaining = null;
+                  if (user.subscriptionType === "monthly" && user.subscriptionEndDate) {
+                    const now = new Date();
+                    const endDate = new Date(user.subscriptionEndDate);
+                    const diff = endDate - now;
+                    daysRemaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                  }
+
+                  return (
+                    <tr key={user._id} className="hover:bg-gray-50">
+                      <td className="p-3 border">{user.name}</td>
+                      <td className="p-3 border">{user.phone}</td>
+                      <td className="p-3 border">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          user.subscriptionType === "lifetime" ? "bg-purple-100 text-purple-700" :
+                          user.subscriptionType === "monthly" ? "bg-blue-100 text-blue-700" :
+                          "bg-gray-100 text-gray-700"
+                        }`}>
+                          {user.subscriptionType === "lifetime" ? "🌟 Lifetime" :
+                           user.subscriptionType === "monthly" ? "📅 Monthly" :
+                           "🆓 Free"}
+                        </span>
+                      </td>
+                      <td className="p-3 border">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          user.subscriptionStatus === "active" ? "bg-green-100 text-green-700" :
+                          user.subscriptionStatus === "expired" ? "bg-red-100 text-red-700" :
+                          "bg-gray-100 text-gray-700"
+                        }`}>
+                          {user.subscriptionStatus === "active" ? "✓ Active" :
+                           user.subscriptionStatus === "expired" ? "✗ Expired" :
+                           "- None"}
+                        </span>
+                      </td>
+                      <td className="p-3 border">
+                        {user.subscriptionType === "lifetime" ? (
+                          <span className="text-purple-600 font-semibold">∞ Forever</span>
+                        ) : user.subscriptionType === "monthly" && daysRemaining !== null ? (
+                          <span className={`font-semibold ${
+                            daysRemaining <= 5 ? "text-red-600" :
+                            daysRemaining <= 10 ? "text-orange-600" :
+                            "text-green-600"
+                          }`}>
+                            {daysRemaining > 0 ? `${daysRemaining} days` : "Expired"}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="p-3 border">₹{user.wallet}</td>
+                      <td className="p-3 border">{user.referralCount}</td>
+                      <td className="p-3 border text-center space-x-2">
+                        <button onClick={() => viewUserDetails(user)} className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm">View</button>
+                        <button onClick={() => deleteUser(user._id)} className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm">Delete</button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -317,14 +366,45 @@ export default function AdminDashboard() {
           {/* User Details Modal */}
           {selectedUser && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
                 <h3 className="text-xl font-bold mb-4">User Details</h3>
-                <p><strong>Name:</strong> {selectedUser.name}</p>
-                <p><strong>Phone:</strong> {selectedUser.phone}</p>
-                <p><strong>Wallet:</strong> ₹{selectedUser.wallet}</p>
-                <p><strong>Referral Code:</strong> {selectedUser.referralCode}</p>
-                <p><strong>Referred By:</strong> {selectedUser.referredBy || "None"}</p>
-                <p><strong>Referral Count:</strong> {selectedUser.referralCount}</p>
+                
+                <div className="space-y-2 mb-4">
+                  <p><strong>Name:</strong> {selectedUser.name}</p>
+                  <p><strong>Phone:</strong> {selectedUser.phone}</p>
+                  <p><strong>Wallet:</strong> ₹{selectedUser.wallet}</p>
+                  <p><strong>Referral Code:</strong> {selectedUser.referralCode}</p>
+                  <p><strong>Referred By:</strong> {selectedUser.referredBy || "None"}</p>
+                  <p><strong>Referral Count:</strong> {selectedUser.referralCount}</p>
+                  
+                  <hr className="my-3" />
+                  
+                  <h4 className="font-bold text-lg mb-2">Subscription Details</h4>
+                  <p><strong>Type:</strong> <span className="capitalize">{selectedUser.subscriptionType || "free"}</span></p>
+                  <p><strong>Status:</strong> <span className={`font-semibold ${
+                    selectedUser.subscriptionStatus === "active" ? "text-green-600" :
+                    selectedUser.subscriptionStatus === "expired" ? "text-red-600" :
+                    "text-gray-600"
+                  }`}>
+                    {selectedUser.subscriptionStatus || "none"}
+                  </span></p>
+                  
+                  {selectedUser.subscriptionStartDate && (
+                    <p><strong>Start Date:</strong> {new Date(selectedUser.subscriptionStartDate).toLocaleDateString()}</p>
+                  )}
+                  
+                  {selectedUser.subscriptionEndDate && (
+                    <p><strong>End Date:</strong> {new Date(selectedUser.subscriptionEndDate).toLocaleDateString()}</p>
+                  )}
+                  
+                  {selectedUser.subscriptionType === "monthly" && selectedUser.subscriptionEndDate && (
+                    <p><strong>Days Remaining:</strong> {
+                      Math.ceil((new Date(selectedUser.subscriptionEndDate) - new Date()) / (1000 * 60 * 60 * 24))
+                    } days</p>
+                  )}
+                </div>
+                
+                <hr className="my-4" />
                 
                 <div className="mt-4">
                   <label className="block font-semibold mb-2">Update Password</label>

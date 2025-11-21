@@ -34,6 +34,11 @@ export const API_ENDPOINTS = {
   
   // Payment
   PAYMENT: `${API_BASE_URL}/payment`,
+  
+  // Subscription
+  SUBSCRIPTION_ACTIVATE: `${API_BASE_URL}/api/subscription/activate`,
+  SUBSCRIPTION_STATUS: (phone) => `${API_BASE_URL}/api/subscription/status/${phone}`,
+  SUBSCRIPTION_CHECK_ACCESS: `${API_BASE_URL}/api/subscription/check-access`,
 };
 
 // Gemini API Key

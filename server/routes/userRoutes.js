@@ -89,6 +89,16 @@ router.get("/lessons/:level/:phone", async (req, res) => {
     
     if (!user) return res.json({ status: "error", message: "User not found" });
     
+    // Check if subscription expired
+    if (user.subscriptionType === "monthly" && user.subscriptionEndDate) {
+      const now = new Date();
+      if (now > user.subscriptionEndDate) {
+        user.subscriptionStatus = "expired";
+        user.subscriptionType = "free";
+        await user.save();
+      }
+    }
+    
     const lessons = await Lesson.find({ level }).sort({ lessonNumber: 1 });
     const Quiz = require("../models/Quiz");
     const quizzes = await Quiz.find({ level });
@@ -108,16 +118,28 @@ router.get("/lessons/:level/:phone", async (req, res) => {
       // Check if there's a quiz after the previous lesson
       const previousLessonNumber = lesson.lessonNumber - 1;
       const quiz = quizzes.find(q => {
-        const afterLesson = q.afterLesson || (q.quizNumber * 5); // Default to quizNumber * 5 if not set
+        const afterLesson = q.afterLesson || (q.quizNumber * 5);
         return afterLesson === previousLessonNumber;
       });
       const requiresQuiz = quiz && !user.quizzesPassed.includes(quiz.quizNumber);
       
+      // Check subscription access
+      let requiresSubscription = false;
+      if (user.subscriptionType === "free") {
+        // Free users: only first 3 beginner lessons
+        if (level === "beginner" && lesson.lessonNumber > 3) {
+          requiresSubscription = true;
+        } else if (level !== "beginner") {
+          requiresSubscription = true;
+        }
+      }
+      
       return {
         ...lesson.toObject(),
         isCompleted,
-        isUnlocked: requiresQuiz ? false : isUnlocked,
+        isUnlocked: requiresSubscription ? false : (requiresQuiz ? false : isUnlocked),
         requiresQuiz: requiresQuiz,
+        requiresSubscription: requiresSubscription,
         quizNumber: quiz ? quiz.quizNumber : null
       };
     });

@@ -149,6 +149,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
 
 // =======================
 //  MIDDLEWARE
@@ -159,6 +160,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 // =======================
 //  CONNECT MONGODB
 // =======================
@@ -217,16 +219,9 @@ app.post("/register", async (req, res) => {
 
     // --------------------------
     //  REFERRAL BONUS LOGIC
+    //  Note: Bonus is now awarded only when referred user purchases subscription
+    //  Monthly: ₹51, Lifetime: ₹101
     // --------------------------
-    if (referralCode) {
-      const referrer = await User.findOne({ referralCode });
-
-      if (referrer) {
-        referrer.wallet += 100; // ₹100 reward
-        referrer.referralCount += 1;
-        await referrer.save();
-      }
-    }
 
     res.status(201).json({
       status: "success",

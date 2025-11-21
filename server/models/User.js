@@ -23,8 +23,25 @@ const UserSchema = new mongoose.Schema({
 
   // Lesson Progress Tracking
   completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }],
-  currentLevel: { type: String, default: "beginner" }, // beginner | medium | expert
-  quizzesPassed: [{ type: Number }], // Array of quiz numbers passed (5, 10, 15, etc.)
-});
+  currentLevel: { type: String, default: "beginner" },
+  quizzesPassed: [{ type: Number }],
+
+  // Subscription System
+  subscriptionType: { 
+    type: String, 
+    enum: ["free", "monthly", "lifetime"], 
+    default: "free" 
+  },
+  subscriptionStartDate: { type: Date, default: null },
+  subscriptionEndDate: { type: Date, default: null },
+  subscriptionStatus: { 
+    type: String, 
+    enum: ["active", "expired", "none"], 
+    default: "none" 
+  },
+  
+  // Referral Bonus Tracking
+  referralBonusAwarded: { type: Boolean, default: false }, // Prevents duplicate bonus
+}, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);
