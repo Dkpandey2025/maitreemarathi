@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function TranslatePage() {
   const [inputText, setInputText] = useState("");
@@ -29,7 +30,8 @@ export default function TranslatePage() {
 
   return (
     <>
-      <Navbar />
+    <DashboardLayout>
+   
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-orange-100 to-orange-50 p-6">
         <h1 className="text-3xl font-bold text-orange-600 mb-6 text-center">
           🗣️ Hindi / English → Marathi Translator
@@ -61,7 +63,7 @@ export default function TranslatePage() {
           )}
         </div>
       </div>
-      <Footer />
+    </DashboardLayout>
     </>
   );
 }

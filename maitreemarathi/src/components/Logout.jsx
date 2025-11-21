@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function Logout() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function Logout() {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
 
   return (
+    <DashboardLayout>
     <div className="flex flex-col items-center justify-center min-h-screen bg-orange-50">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-96 text-center">
         <h1 className="text-2xl font-bold text-orange-600 mb-4">
@@ -35,5 +37,6 @@ export default function Logout() {
         </button>
       </div>
     </div>
+    </DashboardLayout>
   );
 }
