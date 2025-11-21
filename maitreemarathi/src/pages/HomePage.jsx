@@ -38,7 +38,7 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {/* Beginner Lessons */}
             <Link
-              to="/beginner"
+              to="/learn"
               className="p-6 rounded-2xl text-white shadow-md hover:shadow-lg transition bg-gradient-to-r from-purple-500 to-pink-500 text-center"
             >
               <h3 className="text-lg font-semibold mb-2">मराठी सीखें</h3>
@@ -95,8 +95,6 @@ export default function HomePage() {
             </button>
           </div>
         </main>
-
-
       </div>
     </DashboardLayout>
   );

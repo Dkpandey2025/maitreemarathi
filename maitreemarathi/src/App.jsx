@@ -1,3 +1,135 @@
+// // src/App.jsx
+// import React from "react";
+// import { Routes, Route, Navigate } from "react-router-dom";
+
+// // ✅ Import all pages
+// import LandingPage from "./pages/LandingPage";
+// import LoginPage from "./pages/LoginPage";
+// import RegisterPage from "./pages/RegisterPage";
+// import HomePage from "./pages/HomePage";
+// import BeginnerPage from "./pages/BeginnerPage";
+// import LessonDetailPage from "./pages/LessonDetailPage";
+// import ReferPage from "./pages/ReferPage";
+// import ProfilePage from "./pages/ProfilePage";
+// import WalletPage from "./pages/WalletPage";
+// import SupportPage from "./pages/SupportPage";
+// import AboutPage from "./pages/AboutPage";
+// import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+// import PaymentPage from "./pages/PaymentPage";
+// import AdminDashboard from "./pages/AdminDashboard";
+
+// // ✅ Components
+// import Footer from "./components/Footer";
+// import Logout from "./components/Logout";
+// import ProtectedRoute from "./components/ProtectedRoute";
+// import TranslatePage from "./pages/TranslatePage";
+// import MarathiLearningAssistant from "./components/MarathiLearningAssistant";
+// import PlanSelectionPage from "./pages/PlanselectionPage";
+
+// export default function App() {
+//   return (
+//     <div className="min-h-screen flex flex-col bg-gray-50">
+//       <main className="flex-1">
+//         <Routes>
+//           {/* 🌍 Public Routes */}
+//           <Route path="/" element={<LandingPage />} />
+//           <Route path="/login" element={<LoginPage />} />
+//           <Route path="/register" element={<RegisterPage />} />
+//           <Route path="/about" element={<AboutPage />} />
+//           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+//           <Route path="/translate" element={<TranslatePage />} />
+//           <Route path="/learn-marathi" element={<MarathiLearningAssistant />} />
+//           {/* 🔒 Protected User Routes */}
+//           <Route
+//             path="/home"
+//             element={
+//               <ProtectedRoute>
+//                 <HomePage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/beginner"
+//             element={
+//               <ProtectedRoute>
+//                 <BeginnerPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/lesson/:id"
+//             element={
+//               <ProtectedRoute>
+//                 <LessonDetailPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/refer"
+//             element={
+//               <ProtectedRoute>
+//                 <ReferPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/profile"
+//             element={
+//               <ProtectedRoute>
+//                 <ProfilePage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/wallet"
+//             element={
+//               <ProtectedRoute>
+//                 <WalletPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/support"
+//             element={
+//               <ProtectedRoute>
+//                 <SupportPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/payment"
+//             element={
+//               <ProtectedRoute>
+//                 <PaymentPage />
+//               </ProtectedRoute>
+//             }
+//           />
+//           <Route
+//             path="/plan"
+//             element={
+//               <ProtectedRoute>
+//                 <PlanSelectionPage />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           {/* 🔐 Logout */}
+//           <Route path="/logout" element={<Logout />} />
+
+//           {/* 🧭 Admin Route (you can later add admin check here) */}
+//           <Route path="/admin" element={<AdminDashboard />} />
+
+//           {/* 🚫 Fallback Route */}
+//           <Route path="*" element={<Navigate to="/" />} />
+//         </Routes>
+//       </main>
+
+//       {/* Footer (optional, uncomment if needed) */}
+//       {/* <Footer /> */}
+//     </div>
+//   );
+// }
+
 // src/App.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -7,7 +139,10 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
-import BeginnerPage from "./pages/BeginnerPage";
+import BeginnerPage from "./pages/BeginnerPage"; // Learn Marathi Main Menu
+import BeginnerLessonsPage from "./pages/BeginnerLessonsPage";
+import MediumLessonsPage from "./pages/MediumLessonsPage";
+import ExpertLessonsPage from "./pages/ExpertLessonsPage";
 import LessonDetailPage from "./pages/LessonDetailPage";
 import ReferPage from "./pages/ReferPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -18,14 +153,14 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import PaymentPage from "./pages/PaymentPage";
 import AdminDashboard from "./pages/AdminDashboard";
 
-// ✅ Components
+// Components
 import Footer from "./components/Footer";
 import Logout from "./components/Logout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TranslatePage from "./pages/TranslatePage";
 import MarathiLearningAssistant from "./components/MarathiLearningAssistant";
 import PlanSelectionPage from "./pages/PlanselectionPage";
-
+//import AdminAddLessonPage from "./pages/AdminAddLessonPage";
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -39,6 +174,7 @@ export default function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/translate" element={<TranslatePage />} />
           <Route path="/learn-marathi" element={<MarathiLearningAssistant />} />
+
           {/* 🔒 Protected User Routes */}
           <Route
             path="/home"
@@ -48,14 +184,48 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Learn Marathi Main Menu */}
           <Route
-            path="/beginner"
+            path="/learn"
             element={
               <ProtectedRoute>
                 <BeginnerPage />
               </ProtectedRoute>
             }
           />
+
+          {/* Beginner Lessons List */}
+          <Route
+            path="/beginner-lessons"
+            element={
+              <ProtectedRoute>
+                <BeginnerLessonsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Medium Lessons */}
+          <Route
+            path="/medium-lessons"
+            element={
+              <ProtectedRoute>
+                <MediumLessonsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Expert Lessons */}
+          <Route
+            path="/expert-lessons"
+            element={
+              <ProtectedRoute>
+                <ExpertLessonsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Lesson Detail Page */}
           <Route
             path="/lesson/:id"
             element={
@@ -64,6 +234,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/refer"
             element={
@@ -112,19 +283,29 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          {/* <Route
+            path="/admin/add-lesson"
+            element={
+              <ProtectedRoute>
+                <AdminAddLessonPage />
+              </ProtectedRoute>
+            }
+          /> */}
+
+
 
           {/* 🔐 Logout */}
           <Route path="/logout" element={<Logout />} />
 
-          {/* 🧭 Admin Route (you can later add admin check here) */}
+          {/* 🧭 Admin */}
           <Route path="/admin" element={<AdminDashboard />} />
 
-          {/* 🚫 Fallback Route */}
+          {/* 🚫 Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
 
-      {/* Footer (optional, uncomment if needed) */}
+      {/* Optional Footer */}
       {/* <Footer /> */}
     </div>
   );
