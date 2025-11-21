@@ -12,18 +12,19 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
-
   phone: { type: String, required: true, unique: true },
-
   password: { type: String, required: true },
 
-  // 🔥 Referral System Fields
-  referralCode: { type: String, unique: true }, // Code user will share
-  referredBy: { type: String, default: null }, // Code used during signup
+  // Referral System Fields
+  referralCode: { type: String, unique: true },
+  referredBy: { type: String, default: null },
+  wallet: { type: Number, default: 0 },
+  referralCount: { type: Number, default: 0 },
 
-  // 🔥 Wallet & Referral Reward
-  wallet: { type: Number, default: 0 }, // Money earned from referrals
-  referralCount: { type: Number, default: 0 }, // How many users referred
+  // Lesson Progress Tracking
+  completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }],
+  currentLevel: { type: String, default: "beginner" }, // beginner | medium | expert
+  quizzesPassed: [{ type: Number }], // Array of quiz numbers passed (5, 10, 15, etc.)
 });
 
 module.exports = mongoose.model("User", UserSchema);

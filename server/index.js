@@ -137,6 +137,7 @@
 //   console.log(`🚀 Server running on http://localhost:${PORT}`);
 // });
 
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -146,20 +147,23 @@ const bodyParser = require("body-parser");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const adminRoutes = require("./routes/adminRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // =======================
 //  MIDDLEWARE
 // =======================
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173" }));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use("/api/admin", adminRoutes);
+app.use("/api/user", userRoutes);
 // =======================
 //  CONNECT MONGODB
 // =======================
 mongoose
-  .connect("mongodb://localhost:27017/maitreemarathi")
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/maitreemarathi")
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
@@ -243,12 +247,33 @@ app.post("/register", async (req, res) => {
 });
 
 // =======================
-//  LOGIN USER
+//  LOGIN USER OR ADMIN
 // =======================
 app.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
 
+    // First check if it's an admin login (username instead of phone)
+    const Admin = require("./models/Admin");
+    const admin = await Admin.findOne({ username: phone });
+    
+    if (admin) {
+      if (admin.password !== password) {
+        return res.json({ status: "error", message: "Invalid credentials." });
+      }
+      
+      return res.json({
+        status: "success",
+        message: "Admin login successful.",
+        userType: "admin",
+        user: {
+          username: admin.username,
+          isAdmin: true,
+        },
+      });
+    }
+
+    // If not admin, check regular user
     const user = await User.findOne({ phone });
     if (!user) {
       return res.json({ status: "error", message: "User not found." });
@@ -261,6 +286,7 @@ app.post("/login", async (req, res) => {
     res.json({
       status: "success",
       message: "Login successful.",
+      userType: "user",
       user: {
         name: user.name,
         phone: user.phone,
@@ -294,12 +320,12 @@ app.post("/payment", async (req, res) => {
       buyer_name: buyer.buyer_name,
       email: buyer.email,
       phone: buyer.phone,
-      redirect_url: "http://localhost:5173/payment-success",
+      redirect_url: process.env.INSTAMOJO_REDIRECT_URL || "http://localhost:5173/payment-success",
     };
 
     const headers = {
-      "X-Api-Key": "b6520084968e6d4efcdba40f813b4699",
-      "X-Auth-Token": "fc235b0f39a0f80d752147d62997ab08",
+      "X-Api-Key": process.env.INSTAMOJO_API_KEY,
+      "X-Auth-Token": process.env.INSTAMOJO_AUTH_TOKEN,
       "Content-Type": "application/json",
     };
 

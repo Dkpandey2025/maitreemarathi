@@ -160,7 +160,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TranslatePage from "./pages/TranslatePage";
 import MarathiLearningAssistant from "./components/MarathiLearningAssistant";
 import PlanSelectionPage from "./pages/PlanselectionPage";
-//import AdminAddLessonPage from "./pages/AdminAddLessonPage";
+import QuizPage from "./pages/QuizPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -169,6 +171,7 @@ export default function App() {
           {/* 🌍 Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin-login" element={<AdminLoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -231,6 +234,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <LessonDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Quiz Page */}
+          <Route
+            path="/quiz/:level/:quizNumber"
+            element={
+              <ProtectedRoute>
+                <QuizPage />
               </ProtectedRoute>
             }
           />
@@ -298,7 +311,14 @@ export default function App() {
           <Route path="/logout" element={<Logout />} />
 
           {/* 🧭 Admin */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* 🚫 Fallback */}
           <Route path="*" element={<Navigate to="/" />} />

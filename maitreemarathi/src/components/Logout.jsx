@@ -6,10 +6,14 @@ export default function Logout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Remove user data from localStorage
+    // Remove all user data from localStorage
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("userPhone");
+    localStorage.removeItem("token");
+    localStorage.removeItem("referralCode");
 
-    // Optional: show confirmation
+    // Show confirmation
     alert("You have been logged out.");
 
     // Redirect to login page

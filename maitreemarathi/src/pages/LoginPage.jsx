@@ -391,22 +391,31 @@ export default function Login() {
 
       console.log("Login API Response:", res.data);
 
-      // Match backend response
       if (res.data.status === "success") {
         alert("Login Successful!");
 
-        // 🔥 IMPORTANT: Clear all old login data
+        // Clear all old login data
         localStorage.removeItem("loggedInUser");
         localStorage.removeItem("token");
         localStorage.removeItem("referralCode");
 
-        // 🔥 Save fresh data from backend
+        // Save fresh data from backend
         localStorage.setItem("loggedInUser", JSON.stringify(res.data.user));
+        localStorage.setItem("userType", res.data.userType);
+
+        // Save phone for API calls
+        if (res.data.userType === "user") {
+          localStorage.setItem("userPhone", res.data.user.phone);
+        }
 
         console.log("Saved user:", JSON.stringify(res.data.user));
 
-        // 🔥 Force re-render + navigation
-        navigate("/home", { replace: true });
+        // Redirect based on user type
+        if (res.data.userType === "admin") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/home", { replace: true });
+        }
       } else {
         alert(res.data.message || "Invalid credentials!");
       }
@@ -455,6 +464,12 @@ export default function Login() {
           Don’t have an account?{" "}
           <Link to="/register" className="text-orange-600 font-semibold">
             Register
+          </Link>
+        </p>
+
+        <p className="text-center text-sm mt-2">
+          <Link to="/admin-login" className="text-gray-600 hover:text-gray-800">
+            Admin Login →
           </Link>
         </p>
       </form>
