@@ -1,8 +1,10 @@
 // src/pages/AboutPage.jsx
 import React from "react";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function AboutPage() {
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-orange-50 p-8 flex items-center justify-center">
       <div className="max-w-3xl bg-white rounded-2xl shadow-lg p-8">
         <h2 className="text-3xl font-bold text-orange-600 mb-4">About Us</h2>
@@ -21,5 +23,6 @@ export default function AboutPage() {
         </p>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

@@ -81,6 +81,7 @@
 //   );
 // }
 import React, { useEffect, useState } from "react";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function WalletPage() {
   const [balance, setBalance] = useState(0);
@@ -117,6 +118,7 @@ Thank you.`
   };
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-yellow-50 p-6 text-center">
       <h2 className="text-3xl font-bold text-orange-600 mb-6">Wallet</h2>
       <div className="bg-white p-6 rounded-2xl shadow-lg inline-block">
@@ -135,5 +137,6 @@ Thank you.`
         </p>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

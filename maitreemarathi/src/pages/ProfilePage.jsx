@@ -1,5 +1,6 @@
 // src/pages/ProfilePage.jsx
 import React from "react";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export default function ProfilePage() {
   const user = {
@@ -9,6 +10,7 @@ export default function ProfilePage() {
   };
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-orange-50 p-6 flex justify-center items-center">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
         <img
@@ -23,5 +25,6 @@ export default function ProfilePage() {
         </p>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

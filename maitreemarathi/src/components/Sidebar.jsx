@@ -5,13 +5,14 @@ import Logout from "./Logout";
 export default function Sidebar({ open, closeSidebar }) {
   const links = [
     { to: "/home", label: "🏠 Home" },
-    { to: "/beginner", label: "📚 Lessons" },
-    { to: "/ai", label: "🤖 AI Learn" },
-    { to: "/refer", label: "🎁 Refer & Earn" },
     { to: "/wallet", label: "💰 Wallet" },
+    // { to: "/beginner", label: "📚 Lessons" },
+    // { to: "/ai", label: "🤖 AI Learn" },
+    // { to: "/refer", label: "🎁 Refer & Earn" },
+    { to: "/profile", label: "👤 Profile" },
     { to: "/support", label: "📞 Support" },
     { to: "/about", label: "ℹ️ About Us" },
-    { to: "/privacy", label: "🛡️ Privacy" },
+    { to: "/privacy-policy", label: "🛡️ Privacy" },
     { to: "/logout", label: "🚪 Logout" },
   ];
 
