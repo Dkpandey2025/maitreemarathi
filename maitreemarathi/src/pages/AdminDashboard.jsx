@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Check, X } from "lucide-react";
 import { API_ENDPOINTS } from "../config/api";
 
 export default function AdminDashboard() {
@@ -30,6 +31,37 @@ export default function AdminDashboard() {
   const [redemptions, setRedemptions] = useState([]);
   const [editingWalletUser, setEditingWalletUser] = useState(null);
   const [newWalletAmount, setNewWalletAmount] = useState("");
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({
+    name: "",
+    phone: "",
+    password: "",
+    subscriptionType: "free"
+  });
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [updatePasswordTouched, setUpdatePasswordTouched] = useState(false);
+  const [editingSubscriptionUser, setEditingSubscriptionUser] = useState(null);
+  const [newSubscriptionType, setNewSubscriptionType] = useState("");
+
+  // Password validation for new user creation
+  const passwordValidation = {
+    minLength: newUserForm.password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(newUserForm.password),
+    hasLowerCase: /[a-z]/.test(newUserForm.password),
+    hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(newUserForm.password),
+  };
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
+
+  // Password validation for updating existing user password
+  const updatePasswordValidation = {
+    minLength: newPassword.length >= 8,
+    hasUpperCase: /[A-Z]/.test(newPassword),
+    hasLowerCase: /[a-z]/.test(newPassword),
+    hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword),
+  };
+
+  const isUpdatePasswordValid = Object.values(updatePasswordValidation).every(Boolean);
 
   useEffect(() => {
     fetchStats();
@@ -81,7 +113,7 @@ export default function AdminDashboard() {
 
   const fetchRedemptions = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admin/redemptions");
+      const res = await axios.get(API_ENDPOINTS.ADMIN_REDEMPTIONS);
       if (res.data.status === "success") {
         setRedemptions(res.data.redemptions);
       }
@@ -93,16 +125,24 @@ export default function AdminDashboard() {
   const viewUserDetails = (user) => {
     setSelectedUser(user);
     setNewPassword("");
+    setUpdatePasswordTouched(false);
   };
 
   const updatePassword = async () => {
     if (!newPassword) return alert("Enter new password");
+    
+    if (!isUpdatePasswordValid) {
+      alert("Password must be at least 8 characters and contain uppercase, lowercase, and a special symbol");
+      return;
+    }
+
     try {
       const res = await axios.put(API_ENDPOINTS.ADMIN_UPDATE_PASSWORD(selectedUser._id), { password: newPassword });
       if (res.data.status === "success") {
         alert("Password updated successfully");
         setSelectedUser(null);
         setNewPassword("");
+        setUpdatePasswordTouched(false);
       }
     } catch (err) {
       console.error("Error updating password:", err);
@@ -252,7 +292,7 @@ export default function AdminDashboard() {
   const updateRedemptionStatus = async (redemptionId, newStatus) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/admin/redemptions/${redemptionId}/status`,
+        API_ENDPOINTS.ADMIN_UPDATE_REDEMPTION_STATUS(redemptionId),
         { status: newStatus }
       );
       if (res.data.status === "success") {
@@ -274,7 +314,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/admin/users/${userId}/wallet`,
+        API_ENDPOINTS.ADMIN_UPDATE_WALLET(userId),
         { wallet: parseInt(newWalletAmount) }
       );
       if (res.data.status === "success") {
@@ -287,6 +327,69 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error updating wallet:", err);
       alert("Error updating wallet");
+    }
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    
+    if (!newUserForm.name || !newUserForm.phone || !newUserForm.password) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    // Validate password
+    if (!isPasswordValid) {
+      alert("Password must be at least 8 characters and contain uppercase, lowercase, and a special symbol");
+      return;
+    }
+
+    try {
+      const res = await axios.post(API_ENDPOINTS.ADMIN_CREATE_USER, newUserForm);
+      if (res.data.status === "success") {
+        alert("User created successfully!");
+        setShowCreateUser(false);
+        setNewUserForm({
+          name: "",
+          phone: "",
+          password: "",
+          subscriptionType: "free"
+        });
+        setPasswordTouched(false);
+        fetchUsers();
+        fetchStats();
+      } else {
+        alert(res.data.message || "Failed to create user");
+      }
+    } catch (err) {
+      console.error("Error creating user:", err);
+      alert("Error creating user: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const updateUserSubscription = async (userId) => {
+    if (!newSubscriptionType) {
+      alert("Please select a subscription type");
+      return;
+    }
+
+    try {
+      const res = await axios.put(
+        API_ENDPOINTS.ADMIN_UPDATE_SUBSCRIPTION(userId),
+        { subscriptionType: newSubscriptionType }
+      );
+      if (res.data.status === "success") {
+        alert("Subscription updated successfully!");
+        setEditingSubscriptionUser(null);
+        setNewSubscriptionType("");
+        fetchUsers();
+        fetchStats();
+      } else {
+        alert(res.data.message || "Failed to update subscription");
+      }
+    } catch (err) {
+      console.error("Error updating subscription:", err);
+      alert("Error updating subscription: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -340,7 +443,104 @@ export default function AdminDashboard() {
       {/* Users Tab */}
       {activeTab === "users" && (
         <div className="bg-white rounded-2xl shadow-md p-6">
-          <h3 className="text-xl font-semibold mb-4">User Management</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">User Management</h3>
+            <button
+              onClick={() => setShowCreateUser(!showCreateUser)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold"
+            >
+              {showCreateUser ? "Cancel" : "+ Create User"}
+            </button>
+          </div>
+
+          {/* Create User Form */}
+          {showCreateUser && (
+            <form onSubmit={handleCreateUser} className="mb-6 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+              <h4 className="text-lg font-semibold mb-4 text-purple-700">Create New User</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Full Name *</label>
+                  <input
+                    type="text"
+                    value={newUserForm.name}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Phone Number *</label>
+                  <input
+                    type="text"
+                    value={newUserForm.phone}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter phone number"
+                    required
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">Password *</label>
+                  <input
+                    type="password"
+                    value={newUserForm.password}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                    onFocus={() => setPasswordTouched(true)}
+                    className={`w-full p-2 border-2 rounded-lg focus:ring-2 focus:ring-purple-500 ${
+                      passwordTouched && !isPasswordValid ? "border-red-300" : "border-gray-300"
+                    }`}
+                    placeholder="Enter password"
+                    required
+                  />
+                  
+                  {/* Password Requirements */}
+                  {passwordTouched && (
+                    <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <p className="text-xs font-semibold text-gray-700 mb-2">Password must contain:</p>
+                      <div className="space-y-1">
+                        <PasswordRequirement met={passwordValidation.minLength} text="At least 8 characters" />
+                        <PasswordRequirement met={passwordValidation.hasUpperCase} text="One uppercase letter (A-Z)" />
+                        <PasswordRequirement met={passwordValidation.hasLowerCase} text="One lowercase letter (a-z)" />
+                        <PasswordRequirement met={passwordValidation.hasSymbol} text="One special symbol (!@#$%^&*)" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Subscription Type</label>
+                  <select
+                    value={newUserForm.subscriptionType}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, subscriptionType: e.target.value })}
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="free">Free</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="lifetime">Lifetime</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="submit"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold"
+                >
+                  Add User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateUser(false);
+                    setNewUserForm({ name: "", phone: "", password: "", subscriptionType: "free" });
+                  }}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -363,7 +563,12 @@ export default function AdminDashboard() {
                     const now = new Date();
                     const endDate = new Date(user.subscriptionEndDate);
                     const diff = endDate - now;
-                    daysRemaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                    daysRemaining = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    
+                    // Ensure non-negative
+                    if (daysRemaining < 0) {
+                      daysRemaining = 0;
+                    }
                   }
 
                   return (
@@ -466,12 +671,56 @@ export default function AdminDashboard() {
                   
                   {selectedUser.subscriptionType === "monthly" && selectedUser.subscriptionEndDate && (
                     <p><strong>Days Remaining:</strong> {
-                      Math.ceil((new Date(selectedUser.subscriptionEndDate) - new Date()) / (1000 * 60 * 60 * 24))
+                      Math.max(0, Math.floor((new Date(selectedUser.subscriptionEndDate) - new Date()) / (1000 * 60 * 60 * 24)))
                     } days</p>
                   )}
                 </div>
                 
                 <hr className="my-4" />
+                
+                {/* Update Subscription Section */}
+                {editingSubscriptionUser === selectedUser._id ? (
+                  <div className="mt-4 mb-4">
+                    <label className="block font-semibold mb-2">Update Subscription</label>
+                    <select
+                      value={newSubscriptionType}
+                      onChange={(e) => setNewSubscriptionType(e.target.value)}
+                      className="w-full border p-2 rounded-lg mb-2"
+                    >
+                      <option value="">Select subscription type</option>
+                      <option value="free">Free</option>
+                      <option value="monthly">Monthly (30 days)</option>
+                      <option value="lifetime">Lifetime</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => updateUserSubscription(selectedUser._id)}
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex-1 font-semibold"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingSubscriptionUser(null);
+                          setNewSubscriptionType("");
+                        }}
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex-1"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditingSubscriptionUser(selectedUser._id);
+                      setNewSubscriptionType(selectedUser.subscriptionType || "free");
+                    }}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg mb-4 font-semibold"
+                  >
+                    Update Subscription
+                  </button>
+                )}
                 
                 {editingWalletUser === selectedUser._id ? (
                   <div className="mt-4">
@@ -504,8 +753,41 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="mt-4">
                     <label className="block font-semibold mb-2">Update Password</label>
-                    <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" className="w-full border p-2 rounded-lg mb-2" />
-                    <button onClick={updatePassword} className="bg-green-500 text-white px-4 py-2 rounded-lg w-full">Update Password</button>
+                    <input 
+                      type="text" 
+                      value={newPassword} 
+                      onChange={(e) => setNewPassword(e.target.value)} 
+                      onFocus={() => setUpdatePasswordTouched(true)}
+                      placeholder="New password" 
+                      className={`w-full border-2 p-2 rounded-lg mb-2 ${
+                        updatePasswordTouched && !isUpdatePasswordValid ? "border-red-300" : "border-gray-300"
+                      }`}
+                    />
+                    
+                    {/* Password Requirements */}
+                    {updatePasswordTouched && (
+                      <div className="mb-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">Password must contain:</p>
+                        <div className="space-y-1">
+                          <PasswordRequirement met={updatePasswordValidation.minLength} text="At least 8 characters" />
+                          <PasswordRequirement met={updatePasswordValidation.hasUpperCase} text="One uppercase letter (A-Z)" />
+                          <PasswordRequirement met={updatePasswordValidation.hasLowerCase} text="One lowercase letter (a-z)" />
+                          <PasswordRequirement met={updatePasswordValidation.hasSymbol} text="One special symbol (!@#$%^&*)" />
+                        </div>
+                      </div>
+                    )}
+
+                    <button 
+                      onClick={updatePassword} 
+                      disabled={updatePasswordTouched && !isUpdatePasswordValid}
+                      className={`px-4 py-2 rounded-lg w-full font-semibold ${
+                        updatePasswordTouched && !isUpdatePasswordValid
+                          ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                          : "bg-green-500 text-white hover:bg-green-600"
+                      }`}
+                    >
+                      Update Password
+                    </button>
                   </div>
                 )}
 
@@ -743,6 +1025,22 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Password Requirement Component
+function PasswordRequirement({ met, text }) {
+  return (
+    <div className="flex items-center gap-2">
+      {met ? (
+        <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+      ) : (
+        <X className="w-4 h-4 text-red-500 flex-shrink-0" />
+      )}
+      <span className={`text-xs ${met ? "text-green-700 font-medium" : "text-gray-600"}`}>
+        {text}
+      </span>
     </div>
   );
 }

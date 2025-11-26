@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function BeginnerPage() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function BeginnerPage() {
   const fetchLevelStatus = async () => {
     try {
       console.log("Fetching level status for phone:", phone);
-      const res = await axios.get(`http://localhost:5000/api/user/level-status/${phone}`);
+      const res = await axios.get(API_ENDPOINTS.USER_LEVEL_STATUS(phone));
       console.log("Level status response:", res.data);
       if (res.data.status === "success") {
         setLevelStatus(res.data.levelStatus);
@@ -33,9 +34,13 @@ export default function BeginnerPage() {
     }
   };
 
-  const handleLevelClick = (level, unlocked) => {
+  const handleLevelClick = (level, unlocked, levelName) => {
     if (!unlocked) {
-      alert("Complete the previous level to unlock this!");
+      if (level === "medium") {
+        alert("🔒 Please complete all Beginner days first to unlock Medium level!");
+      } else if (level === "expert") {
+        alert("🔒 Please complete all Medium days first to unlock Expert level!");
+      }
       return;
     }
     navigate(`/${level}-lessons`);
@@ -44,21 +49,10 @@ export default function BeginnerPage() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 p-4 sm:p-6 lg:p-8">
-        {/* Header with Back Button */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <button
-            onClick={() => navigate("/home")}
-            className="flex items-center justify-center p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all duration-200"
-            aria-label="Go back"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">मराठी सीखें</h1>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">Choose your learning level</p>
-          </div>
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">मराठी सीखें</h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">Choose your learning level</p>
         </div>
 
         <div className="max-w-2xl mx-auto space-y-4 sm:space-y-5">
@@ -104,7 +98,7 @@ export default function BeginnerPage() {
                 ? "bg-gradient-to-r from-white to-purple-50 hover:shadow-2xl hover:scale-[1.02] cursor-pointer border-purple-500"
                 : "bg-gray-200 cursor-not-allowed opacity-60 border-gray-400"
             }`}
-            onClick={() => handleLevelClick("medium", levelStatus.medium.unlocked)}
+            onClick={() => handleLevelClick("medium", levelStatus.medium.unlocked, "Medium")}
           >
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex-1">
@@ -143,7 +137,7 @@ export default function BeginnerPage() {
                 ? "bg-gradient-to-r from-white to-purple-50 hover:shadow-2xl hover:scale-[1.02] cursor-pointer border-purple-500"
                 : "bg-gray-200 cursor-not-allowed opacity-60 border-gray-400"
             }`}
-            onClick={() => handleLevelClick("expert", levelStatus.expert.unlocked)}
+            onClick={() => handleLevelClick("expert", levelStatus.expert.unlocked, "Expert")}
           >
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex-1">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function QuizPage() {
   const { level, quizNumber } = useParams();
@@ -18,7 +19,7 @@ export default function QuizPage() {
 
   const fetchQuiz = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/quiz/${level}/${quizNumber}`);
+      const res = await axios.get(API_ENDPOINTS.USER_QUIZ(level, quizNumber));
       if (res.data.status === "success") {
         setQuiz(res.data.quiz);
       } else {
@@ -43,7 +44,7 @@ export default function QuizPage() {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/user/submit-quiz", {
+      const res = await axios.post(API_ENDPOINTS.USER_SUBMIT_QUIZ, {
         phone,
         level,
         quizNumber: parseInt(quizNumber),
@@ -110,13 +111,7 @@ export default function QuizPage() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-purple-50 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-purple-200"
-          >
-            ←
-          </button>
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-purple-600">
             Quiz {quizNumber} - {level}
           </h1>

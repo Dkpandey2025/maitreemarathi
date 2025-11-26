@@ -410,13 +410,6 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-purple-100 flex items-center justify-center shadow-md">
-              <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600" />
-            </div>
-            <p className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-gray-700">पाठ आधारित सीखना</p>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-purple-100 flex items-center justify-center shadow-md">
               <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600" />
             </div>
             <p className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-gray-700">तेज़ प्रभावी तरीका</p>
@@ -427,6 +420,13 @@ export default function LandingPage() {
               <Star className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600" />
             </div>
             <p className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-gray-700">AI मार्गदर्शन</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-purple-100 flex items-center justify-center shadow-md">
+              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600" />
+            </div>
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg font-medium text-gray-700">Skills के साथ साथ कमाई</p>
           </div>
 
         </div>

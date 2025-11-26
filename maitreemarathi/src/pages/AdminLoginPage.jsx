@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@ export default function AdminLoginPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/api/admin/login", {
+      const res = await axios.post(API_ENDPOINTS.ADMIN_LOGIN, {
         username,
         password,
       });

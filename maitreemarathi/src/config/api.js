@@ -1,11 +1,12 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // API Endpoints
 export const API_ENDPOINTS = {
   // Auth
   LOGIN: `${API_BASE_URL}/login`,
   REGISTER: `${API_BASE_URL}/register`,
+  VALIDATE_SESSION: `${API_BASE_URL}/validate-session`,
   
   // Admin
   ADMIN_LOGIN: `${API_BASE_URL}/api/admin/login`,
@@ -23,6 +24,11 @@ export const API_ENDPOINTS = {
   ADMIN_STATS: `${API_BASE_URL}/api/admin/stats`,
   ADMIN_UPDATE_PASSWORD: (id) => `${API_BASE_URL}/api/admin/users/${id}/password`,
   ADMIN_DELETE_USER: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
+  ADMIN_REDEMPTIONS: `${API_BASE_URL}/api/admin/redemptions`,
+  ADMIN_UPDATE_REDEMPTION_STATUS: (id) => `${API_BASE_URL}/api/admin/redemptions/${id}/status`,
+  ADMIN_UPDATE_WALLET: (id) => `${API_BASE_URL}/api/admin/users/${id}/wallet`,
+  ADMIN_CREATE_USER: `${API_BASE_URL}/api/admin/create-user`,
+  ADMIN_UPDATE_SUBSCRIPTION: (id) => `${API_BASE_URL}/api/admin/users/${id}/subscription`,
   
   // User
   USER_LESSONS: (level, phone) => `${API_BASE_URL}/api/user/lessons/${level}/${phone}`,
@@ -31,6 +37,11 @@ export const API_ENDPOINTS = {
   USER_SUBMIT_QUIZ: `${API_BASE_URL}/api/user/submit-quiz`,
   USER_LEVEL_STATUS: (phone) => `${API_BASE_URL}/api/user/level-status/${phone}`,
   USER_PROGRESS: (phone) => `${API_BASE_URL}/api/user/progress/${phone}`,
+  USER_REDEMPTIONS: (phone) => `${API_BASE_URL}/api/user/redemptions/${phone}`,
+  USER_REQUEST_REDEMPTION: `${API_BASE_URL}/api/user/request-redemption`,
+  USER_FORGOT_PASSWORD: `${API_BASE_URL}/api/user/forgot-password`,
+  USER_RESET_PASSWORD: `${API_BASE_URL}/api/user/reset-password`,
+  CHANGE_PASSWORD: `${API_BASE_URL}/api/user/change-password`,
   
   // Payment
   PAYMENT: `${API_BASE_URL}/payment`,
@@ -41,5 +52,5 @@ export const API_ENDPOINTS = {
   SUBSCRIPTION_CHECK_ACCESS: `${API_BASE_URL}/api/subscription/check-access`,
 };
 
-// Gemini API Key
-export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// Groq API Key
+export const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;

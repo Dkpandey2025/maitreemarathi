@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
 export default function MarathiLearningAssistant() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Initialize Gemini
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // Initialize Groq
+  const client = new Groq({
+    apiKey: import.meta.env.VITE_GROQ_API_KEY,
+    dangerouslyAllowBrowser: true,
+  });
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -28,8 +30,14 @@ export default function MarathiLearningAssistant() {
       User: ${input}
       `;
 
-      const result = await model.generateContent(prompt);
-      const aiText = result.response.text();
+      const response = await client.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+
+      const aiText = response.choices[0]?.message?.content || "No response";
 
       const aiMessage = { sender: "ai", text: aiText };
       setMessages((prev) => [...prev, aiMessage]);
@@ -47,7 +55,7 @@ export default function MarathiLearningAssistant() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-purple-50 flex flex-col items-center py-10 px-4">
       <h1 className="text-3xl font-bold text-purple-600 mb-6">
-        🇮🇳 Learn Marathi with AI (Gemini)
+        🇮🇳 Learn Marathi with AI (Groq - Llama 3.3)
       </h1>
 
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-md p-6 flex flex-col">

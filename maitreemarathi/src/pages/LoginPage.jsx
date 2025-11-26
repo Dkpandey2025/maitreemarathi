@@ -1,23 +1,26 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function Login() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post(API_ENDPOINTS.LOGIN, {
         phone,
         password,
       });
 
       console.log("Login API Response:", res.data);
+      console.log("Session Token from API:", res.data.sessionToken);
 
       if (res.data.status === "success") {
         alert("Login Successful!");
@@ -26,14 +29,19 @@ export default function Login() {
         localStorage.removeItem("loggedInUser");
         localStorage.removeItem("token");
         localStorage.removeItem("referralCode");
+        localStorage.removeItem("sessionToken");
 
         // Save fresh data from backend
         localStorage.setItem("loggedInUser", JSON.stringify(res.data.user));
         localStorage.setItem("userType", res.data.userType);
 
-        // Save phone for API calls
+        // Save phone/email and session token for API calls
         if (res.data.userType === "user") {
-          localStorage.setItem("userPhone", res.data.user.phone);
+          // Store the identifier used for login (could be phone or email)
+          localStorage.setItem("userPhone", phone);
+          if (res.data.sessionToken) {
+            localStorage.setItem("sessionToken", res.data.sessionToken);
+          }
         }
 
         console.log("Saved user:", JSON.stringify(res.data.user));
@@ -55,15 +63,6 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 p-4 sm:p-6">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate("/")}
-        className="fixed top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all z-10"
-        aria-label="Go back to home"
-      >
-        <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-      </button>
-
       <form
         onSubmit={handleLogin}
         className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl shadow-lg w-full max-w-sm sm:max-w-md"
@@ -73,22 +72,32 @@ export default function Login() {
         </h2>
 
         <input
-          type="tel"
-          placeholder="Mobile Number"
+          type="text"
+          placeholder="Phone Number or Email"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full mb-4 sm:mb-5 p-3 sm:p-4 text-base sm:text-lg border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
           required
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 sm:mb-8 p-3 sm:p-4 text-base sm:text-lg border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-          required
-        />
+        <div className="relative mb-6 sm:mb-8">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 sm:p-4 pr-12 text-base sm:text-lg border-2 border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff className="w-5 h-5 sm:w-6 sm:h-6" /> : <Eye className="w-5 h-5 sm:w-6 sm:h-6" />}
+          </button>
+        </div>
 
         <button
           type="submit"

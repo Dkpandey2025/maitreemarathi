@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function BeginnerLessonsPage() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function BeginnerLessonsPage() {
 
   const fetchLessons = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/lessons/beginner/${phone}`);
+      const res = await axios.get(API_ENDPOINTS.USER_LESSONS("beginner", phone));
       if (res.data.status === "success") {
         setLessons(res.data.lessons);
       }
@@ -24,15 +25,22 @@ export default function BeginnerLessonsPage() {
   };
 
   const handleLessonClick = (lesson) => {
+    if (!lesson.isUnlocked && !lesson.requiresSubscription) {
+      alert(`🔒 Please complete Day ${lesson.lessonNumber - 1} first to unlock this day!`);
+      return;
+    }
     if (lesson.requiresSubscription) {
-      if (confirm("This lesson requires a subscription. Would you like to upgrade now?")) {
+      if (confirm("👑 This day requires a subscription. Would you like to upgrade now?")) {
         navigate("/plan");
       }
       return;
     }
     if (lesson.requiresQuiz) {
+      alert(`🎯 Please complete Quiz ${lesson.quizNumber} first to unlock this day!`);
       navigate(`/quiz/beginner/${lesson.quizNumber}`);
-    } else if (lesson.isUnlocked) {
+      return;
+    }
+    if (lesson.isUnlocked) {
       navigate(`/lesson/${lesson._id}`);
     }
   };
@@ -41,20 +49,9 @@ export default function BeginnerLessonsPage() {
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <button
-            onClick={() => navigate("/learn")}
-            className="flex items-center justify-center p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all duration-200"
-            aria-label="Go back"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">Beginner Lessons</h1>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">Start your Marathi learning journey</p>
-          </div>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">Beginner Days</h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">Start your Marathi learning journey</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 max-w-6xl mx-auto">
@@ -81,7 +78,7 @@ export default function BeginnerLessonsPage() {
                        lesson.isUnlocked ? "📖" : "🔒"}
                     </span>
                     <h2 className="text-base sm:text-lg font-bold text-gray-800">
-                      Lesson {lesson.lessonNumber}
+                      Day {lesson.lessonNumber}
                     </h2>
                   </div>
                   <h3 className="text-sm sm:text-base font-semibold text-gray-700 mb-2">

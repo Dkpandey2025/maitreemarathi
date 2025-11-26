@@ -82,9 +82,13 @@
 // }
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import DashboardLayout from "../layout/DashboardLayout";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function WalletPage() {
+  const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [redemptions, setRedemptions] = useState([]);
   const [amount, setAmount] = useState(100);
@@ -100,7 +104,7 @@ export default function WalletPage() {
 
   const fetchRedemptions = async (phone) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/redemptions/${phone}`);
+      const res = await axios.get(API_ENDPOINTS.USER_REDEMPTIONS(phone));
       if (res.data.status === "success") {
         setRedemptions(res.data.redemptions);
       }
@@ -124,7 +128,7 @@ export default function WalletPage() {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/user/request-redemption", {
+      const res = await axios.post(API_ENDPOINTS.USER_REQUEST_REDEMPTION, {
         phone: user.phone,
         amount: parseInt(amount)
       });
@@ -199,25 +203,25 @@ export default function WalletPage() {
           {redemptions.length === 0 ? (
             <p className="text-gray-500 text-center py-6">No redemption requests yet</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto sm:overflow-visible">
+              <table className="w-full min-w-full">
                 <thead>
                   <tr className="border-b-2 border-purple-200">
-                    <th className="text-left p-3 font-semibold">Amount</th>
-                    <th className="text-left p-3 font-semibold">Status</th>
-                    <th className="text-left p-3 font-semibold">Date</th>
+                    <th className="text-center p-2 sm:p-3 font-semibold">Amount</th>
+                    <th className="text-center p-2 sm:p-3 font-semibold">Status</th>
+                    <th className="text-center p-2 sm:p-3 font-semibold">Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {redemptions.map((redemption) => (
                     <tr key={redemption._id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="p-3 font-semibold">₹{redemption.amount}</td>
-                      <td className="p-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(redemption.status)}`}>
+                      <td className="p-2 sm:p-3 font-semibold text-center align-middle text-sm sm:text-base whitespace-nowrap">₹{redemption.amount}</td>
+                      <td className="p-2 sm:p-3 text-center align-middle">
+                        <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getStatusColor(redemption.status)}`}>
                           {redemption.status.charAt(0).toUpperCase() + redemption.status.slice(1)}
                         </span>
                       </td>
-                      <td className="p-3 text-sm text-gray-600">
+                      <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-600 text-center align-middle whitespace-nowrap">
                         {new Date(redemption.requestedAt).toLocaleDateString()}
                       </td>
                     </tr>

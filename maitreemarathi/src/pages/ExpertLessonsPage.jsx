@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../layout/DashboardLayout";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function ExpertLessonsPage() {
   const navigate = useNavigate();
@@ -15,13 +16,13 @@ export default function ExpertLessonsPage() {
 
   const checkUnlockStatus = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/level-status/${phone}`);
+      const res = await axios.get(API_ENDPOINTS.USER_LEVEL_STATUS(phone));
       if (res.data.status === "success") {
         if (res.data.levelStatus.expert.unlocked) {
           setIsUnlocked(true);
           fetchLessons();
         } else {
-          alert("Complete all Medium lessons to unlock Expert level!");
+          alert("Complete all Medium days to unlock Expert level!");
           navigate("/learn");
         }
       }
@@ -32,7 +33,7 @@ export default function ExpertLessonsPage() {
 
   const fetchLessons = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/lessons/expert/${phone}`);
+      const res = await axios.get(API_ENDPOINTS.USER_LESSONS("expert", phone));
       if (res.data.status === "success") {
         setLessons(res.data.lessons);
       }
@@ -42,15 +43,22 @@ export default function ExpertLessonsPage() {
   };
 
   const handleLessonClick = (lesson) => {
+    if (!lesson.isUnlocked && !lesson.requiresSubscription) {
+      alert(`🔒 Please complete Day ${lesson.lessonNumber - 1} first to unlock this day!`);
+      return;
+    }
     if (lesson.requiresSubscription) {
-      if (confirm("This lesson requires a subscription. Would you like to upgrade now?")) {
+      if (confirm("👑 This day requires a subscription. Would you like to upgrade now?")) {
         navigate("/plan");
       }
       return;
     }
     if (lesson.requiresQuiz) {
+      alert(`🎯 Please complete Quiz ${lesson.quizNumber} first to unlock this day!`);
       navigate(`/quiz/expert/${lesson.quizNumber}`);
-    } else if (lesson.isUnlocked) {
+      return;
+    }
+    if (lesson.isUnlocked) {
       navigate(`/lesson/${lesson._id}`);
     }
   };
@@ -67,15 +75,10 @@ export default function ExpertLessonsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-purple-50 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate("/learn")}
-            className="p-2 bg-white rounded-full shadow-md hover:bg-purple-200"
-          >
-            ←
-          </button>
-          <h1 className="text-3xl font-bold text-purple-600">Expert Lessons</h1>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">Expert Days</h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">Master advanced Marathi concepts</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -96,7 +99,7 @@ export default function ExpertLessonsPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-lg font-semibold">
-                    Lesson {lesson.lessonNumber}: {lesson.title}
+                    Day {lesson.lessonNumber}: {lesson.title}
                   </h2>
                   {lesson.requiresSubscription && (
                     <p className="text-sm text-yellow-700 font-semibold mt-1">

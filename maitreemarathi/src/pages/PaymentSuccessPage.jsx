@@ -19,22 +19,39 @@ export default function PaymentSuccessPage() {
       const paymentId = searchParams.get("payment_id");
       const paymentRequestId = searchParams.get("payment_request_id");
       
-      // Get user phone and plan from localStorage
+      // ✅ CRITICAL: Verify payment IDs exist
+      if (!paymentId && !paymentRequestId) {
+        setStatus("error");
+        setMessage("Invalid payment. Please complete the payment process.");
+        setTimeout(() => navigate("/plan"), 3000);
+        return;
+      }
+      
+      // Get user data and plan from localStorage
       const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
-      const phone = user.phone;
+      const userPhone = localStorage.getItem("userPhone"); // Could be phone or email
       const plan = localStorage.getItem("selectedPlan") || "monthly";
 
-      if (!phone) {
+      // ✅ Get user identifier (phone or email) with multiple fallbacks
+      const identifier = userPhone || user.phone || user.email;
+
+      if (!identifier) {
         setStatus("error");
         setMessage("User not found. Please login again.");
+        setTimeout(() => navigate("/login"), 3000);
         return;
       }
 
-      // Activate subscription
+      console.log("🔍 Activating subscription for:", identifier);
+
+      // Activate subscription with payment verification
       const res = await axios.post(API_ENDPOINTS.SUBSCRIPTION_ACTIVATE, {
-        phone,
+        identifier: identifier,
+        phone: user.phone, // Send both for backward compatibility
+        email: user.email,
         subscriptionType: plan,
-        paymentId: paymentId || paymentRequestId
+        paymentId: paymentId,
+        paymentRequestId: paymentRequestId
       });
 
       if (res.data.status === "success") {

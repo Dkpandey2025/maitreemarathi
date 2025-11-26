@@ -40,6 +40,7 @@ const UserSchema = new mongoose.Schema({
     enum: ["active", "expired", "none"], 
     default: "none" 
   },
+  lastPaymentId: { type: String, default: null }, // Prevents payment reuse
   
   // Referral Bonus Tracking
   referralBonusAwarded: { type: Boolean, default: false }, // Prevents duplicate bonus
@@ -47,6 +48,9 @@ const UserSchema = new mongoose.Schema({
   // Password Reset Fields
   resetToken: { type: String, default: null },
   resetTokenExpiry: { type: Date, default: null },
+
+  // Single Device Login
+  sessionToken: { type: String, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", UserSchema);

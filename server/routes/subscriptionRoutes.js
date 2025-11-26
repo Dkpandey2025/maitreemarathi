@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const User = require("../models/User");
 
 const router = express.Router();
@@ -8,10 +9,79 @@ const router = express.Router();
 // =========================
 router.post("/activate", async (req, res) => {
   try {
-    const { phone, subscriptionType, paymentId } = req.body;
+    const { phone, email, identifier, subscriptionType, paymentId, paymentRequestId } = req.body;
 
-    const user = await User.findOne({ phone });
-    if (!user) return res.json({ status: "error", message: "User not found" });
+    // ✅ Validate user identifier (phone or email)
+    const userIdentifier = identifier || phone || email;
+    if (!userIdentifier) {
+      return res.json({ 
+        status: "error", 
+        message: "User identifier (phone or email) is required" 
+      });
+    }
+
+    // ✅ CRITICAL: Verify payment with Instamojo before activation
+    if (!paymentId && !paymentRequestId) {
+      return res.json({ 
+        status: "error", 
+        message: "Payment verification failed: No payment ID provided" 
+      });
+    }
+
+    // Verify payment status with Instamojo
+    try {
+      // Use payment_id for verification (not payment_request_id)
+      const verificationId = paymentId || paymentRequestId;
+      const verificationUrl = `https://www.instamojo.com/api/1.1/payments/${verificationId}/`;
+      const headers = {
+        "X-Api-Key": process.env.INSTAMOJO_API_KEY,
+        "X-Auth-Token": process.env.INSTAMOJO_AUTH_TOKEN,
+      };
+
+      console.log("🔍 Verifying payment:", verificationId);
+      const paymentResponse = await axios.get(verificationUrl, { headers });
+      
+      // Check if payment was successful
+      const paymentStatus = paymentResponse.data?.payment?.status;
+      if (paymentStatus !== "Credit") {
+        console.log("❌ Payment status:", paymentStatus);
+        return res.json({ 
+          status: "error", 
+          message: `Payment not completed. Status: ${paymentStatus || "Unknown"}` 
+        });
+      }
+
+      console.log("✅ Payment verified successfully:", verificationId);
+    } catch (verifyError) {
+      console.error("❌ Payment verification failed:", verifyError.response?.data || verifyError.message);
+      return res.json({ 
+        status: "error", 
+        message: "Payment verification failed. Please contact support." 
+      });
+    }
+
+    // ✅ Find user by phone OR email (flexible identifier)
+    const user = await User.findOne({
+      $or: [
+        { phone: userIdentifier },
+        { email: userIdentifier }
+      ]
+    });
+    
+    if (!user) {
+      console.log("❌ User not found with identifier:", userIdentifier);
+      return res.json({ status: "error", message: "User not found" });
+    }
+
+    console.log("✅ User found:", user.phone || user.email);
+
+    // Check if this payment was already used
+    if (user.lastPaymentId === paymentId || user.lastPaymentId === paymentRequestId) {
+      return res.json({ 
+        status: "error", 
+        message: "This payment has already been processed" 
+      });
+    }
 
     const now = new Date();
     let endDate = null;
@@ -26,6 +96,7 @@ router.post("/activate", async (req, res) => {
     user.subscriptionStartDate = now;
     user.subscriptionEndDate = endDate;
     user.subscriptionStatus = "active";
+    user.lastPaymentId = paymentId || paymentRequestId; // Store to prevent reuse
 
     await user.save();
 
@@ -80,9 +151,18 @@ router.post("/activate", async (req, res) => {
 // =========================
 // CHECK SUBSCRIPTION STATUS
 // =========================
-router.get("/status/:phone", async (req, res) => {
+router.get("/status/:identifier", async (req, res) => {
   try {
-    const user = await User.findOne({ phone: req.params.phone });
+    const identifier = req.params.identifier;
+    
+    // ✅ Find user by phone OR email
+    const user = await User.findOne({
+      $or: [
+        { phone: identifier },
+        { email: identifier }
+      ]
+    });
+    
     if (!user) return res.json({ status: "error", message: "User not found" });
 
     // Check if subscription expired
@@ -100,7 +180,12 @@ router.get("/status/:phone", async (req, res) => {
     if (user.subscriptionType === "monthly" && user.subscriptionEndDate) {
       const now = new Date();
       const diff = user.subscriptionEndDate - now;
-      daysRemaining = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      daysRemaining = Math.floor(diff / (1000 * 60 * 60 * 24));
+      
+      // If there's any time left on the last day, count it as 1 day
+      if (daysRemaining < 0) {
+        daysRemaining = 0;
+      }
     }
 
     res.json({
@@ -124,9 +209,22 @@ router.get("/status/:phone", async (req, res) => {
 // =========================
 router.post("/check-access", async (req, res) => {
   try {
-    const { phone, lessonNumber, level } = req.body;
+    const { phone, email, identifier, lessonNumber, level } = req.body;
 
-    const user = await User.findOne({ phone });
+    // ✅ Get user identifier (phone or email)
+    const userIdentifier = identifier || phone || email;
+    if (!userIdentifier) {
+      return res.json({ status: "error", message: "User identifier required" });
+    }
+
+    // ✅ Find user by phone OR email
+    const user = await User.findOne({
+      $or: [
+        { phone: userIdentifier },
+        { email: userIdentifier }
+      ]
+    });
+    
     if (!user) return res.json({ status: "error", message: "User not found" });
 
     // Check if subscription expired

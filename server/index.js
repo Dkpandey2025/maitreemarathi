@@ -154,20 +154,51 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 // =======================
 //  MIDDLEWARE
 // =======================
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173" }));
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// Ensure DB connection for each request (serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ status: "error", message: "Database connection failed" });
+  }
+});
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/subscription", subscriptionRoutes);
 // =======================
-//  CONNECT MONGODB
+//  CONNECT MONGODB (Serverless-friendly)
 // =======================
-mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/maitreemarathi")
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    console.log("✅ MongoDB already connected");
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+    throw err;
+  }
+};
+
+// Connect to MongoDB
+connectDB();
 
 // =======================
 //  HELPER – Generate Referral Code
@@ -268,8 +299,10 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    // If not admin, check regular user
-    const user = await User.findOne({ phone });
+    // If not admin, check regular user (support both phone and email)
+    const user = await User.findOne({
+      $or: [{ phone: phone }, { email: phone }]
+    });
     if (!user) {
       return res.json({ status: "error", message: "User not found." });
     }
@@ -278,10 +311,23 @@ app.post("/login", async (req, res) => {
       return res.json({ status: "error", message: "Invalid credentials." });
     }
 
-    res.json({
+    // Generate unique session token for single device login
+    const crypto = require("crypto");
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+    
+    console.log("Generated session token:", sessionToken);
+    
+    // Save session token to user (this will invalidate previous sessions)
+    user.sessionToken = sessionToken;
+    await user.save();
+
+    console.log("Session token saved to user:", user.phone);
+
+    const response = {
       status: "success",
       message: "Login successful.",
       userType: "user",
+      sessionToken: sessionToken,
       user: {
         name: user.name,
         phone: user.phone,
@@ -289,12 +335,65 @@ app.post("/login", async (req, res) => {
         referralCode: user.referralCode,
         referralCount: user.referralCount,
       },
-    });
+    };
+
+    console.log("Sending login response with sessionToken:", response.sessionToken);
+    res.json(response);
   } catch (error) {
     console.error("Error in /login:", error);
     res.status(500).json({
       status: "error",
       message: "Internal server error.",
+    });
+  }
+});
+
+// =======================
+//  VALIDATE SESSION TOKEN
+// =======================
+app.post("/validate-session", async (req, res) => {
+  try {
+    const { phone, sessionToken } = req.body;
+
+    if (!phone || !sessionToken) {
+      return res.json({ 
+        status: "error", 
+        message: "Phone and session token required.",
+        valid: false 
+      });
+    }
+
+    const user = await User.findOne({
+      $or: [{ phone: phone }, { email: phone }]
+    });
+    if (!user) {
+      return res.json({ 
+        status: "error", 
+        message: "User not found.",
+        valid: false 
+      });
+    }
+
+    // Check if session token matches
+    if (user.sessionToken !== sessionToken) {
+      return res.json({
+        status: "error",
+        message: "Session expired. Please login again.",
+        valid: false
+      });
+    }
+
+    res.json({
+      status: "success",
+      message: "Session valid.",
+      valid: true
+    });
+  } catch (error) {
+    console.error("Error in /validate-session:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error.",
+      valid: false
     });
   }
 });
@@ -307,7 +406,7 @@ app.post("/payment", async (req, res) => {
     const buyer = req.body;
     console.log("📩 Payment Request Received:", buyer);
 
-    const instaServer = "https://www.instamojo.com/api/1.1/payment-requests/";
+    const instaServer = process.env.INSTAMOJO_API_URL;
 
     const payload = {
       amount: buyer.amount,
@@ -315,7 +414,7 @@ app.post("/payment", async (req, res) => {
       buyer_name: buyer.buyer_name,
       email: buyer.email,
       phone: buyer.phone,
-      redirect_url: process.env.INSTAMOJO_REDIRECT_URL || "http://localhost:5173/payment-success",
+      redirect_url: process.env.INSTAMOJO_REDIRECT_URL,
     };
 
     const headers = {
@@ -345,5 +444,5 @@ app.post("/payment", async (req, res) => {
 //  START SERVER
 // =======================
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

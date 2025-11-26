@@ -1,15 +1,12 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 
 if (!apiKey) {
-  console.error("VITE_GEMINI_API_KEY is not set in environment variables");
+  console.error("VITE_GROQ_API_KEY is not set in environment variables");
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// Use gemini-pro-vision model (available on free tier)
-const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
 // System prompt for Marathi learning
 const MARATHI_SYSTEM_PROMPT = `You are an expert Marathi language teacher. Your role is to help users learn Marathi through interactive conversations.
@@ -30,40 +27,69 @@ When a user asks something:
 - If it's a conversation practice, continue the dialogue naturally
 - Always provide the Roman transliteration for Marathi words`;
 
-// Initialize chat session
+// Initialize chat history
+let chatHistory = [
+  {
+    role: "system",
+    content: MARATHI_SYSTEM_PROMPT,
+  },
+  {
+    role: "assistant",
+    content:
+      "नमस्कार! (Namaste!) I'm your Marathi learning assistant. I'm here to help you learn Marathi through interactive conversations. We can practice:\n\n1. **Vocabulary** - Learn new words and phrases\n2. **Grammar** - Understand sentence structure\n3. **Conversation** - Practice real-life dialogues\n4. **Pronunciation** - Get guidance on correct pronunciation\n\nWhat would you like to learn today? You can ask me anything about Marathi! 😊",
+  },
+];
+
+// Start chat session
 export const startChatSession = () => {
-  return model.startChat({
-    history: [
-      {
-        role: "user",
-        parts: [{ text: "You are a Marathi language teacher. Help me learn Marathi." }],
-      },
-      {
-        role: "model",
-        parts: [
-          {
-            text: "नमस्कार! (Namaste!) I'm your Marathi learning assistant. I'm here to help you learn Marathi through interactive conversations. We can practice:\n\n1. **Vocabulary** - Learn new words and phrases\n2. **Grammar** - Understand sentence structure\n3. **Conversation** - Practice real-life dialogues\n4. **Pronunciation** - Get guidance on correct pronunciation\n\nWhat would you like to learn today? You can ask me anything about Marathi! 😊",
-          },
-        ],
-      },
-    ],
-  });
+  chatHistory = [
+    {
+      role: "system",
+      content: MARATHI_SYSTEM_PROMPT,
+    },
+    {
+      role: "assistant",
+      content:
+        "नमस्कार! (Namaste!) I'm your Marathi learning assistant. I'm here to help you learn Marathi through interactive conversations. We can practice:\n\n1. **Vocabulary** - Learn new words and phrases\n2. **Grammar** - Understand sentence structure\n3. **Conversation** - Practice real-life dialogues\n4. **Pronunciation** - Get guidance on correct pronunciation\n\nWhat would you like to learn today? You can ask me anything about Marathi! 😊",
+    },
+  ];
+  return chatHistory;
 };
 
-// Send message to Gemini
+// Send message to Groq
 export const sendMessage = async (chat, userMessage) => {
   try {
-    if (!chat) {
-      throw new Error("Chat session not initialized");
+    if (!client) {
+      throw new Error("Groq client not initialized");
     }
-    const result = await chat.sendMessage(userMessage);
-    const text = result.response.text();
+
+    // Add user message to history
+    chatHistory.push({
+      role: "user",
+      content: userMessage,
+    });
+
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: chatHistory,
+      temperature: 0.7,
+      max_tokens: 1024,
+    });
+
+    const text = response.choices[0]?.message?.content;
     if (!text) {
       throw new Error("Empty response from AI");
     }
+
+    // Add assistant response to history
+    chatHistory.push({
+      role: "assistant",
+      content: text,
+    });
+
     return text;
   } catch (error) {
-    console.error("Error sending message to Gemini:", error);
+    console.error("Error sending message to Groq:", error);
     throw new Error(`Failed to get response from AI: ${error.message}`);
   }
 };
@@ -82,8 +108,19 @@ Format the response as:
 Make it engaging and educational.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: MARATHI_SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 1024,
+    });
+
+    return (
+      response.choices[0]?.message?.content || "Failed to generate exercise"
+    );
   } catch (error) {
     console.error("Error generating exercise:", error);
     throw new Error("Failed to generate exercise");
@@ -108,9 +145,18 @@ Format as JSON array:
 Return only the JSON array, no other text.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: MARATHI_SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 2048,
+    });
+
+    const text = response.choices[0]?.message?.content || "";
+
     // Extract JSON from response
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
@@ -137,8 +183,17 @@ Please:
 Format your response clearly with sections for each point.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: MARATHI_SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.5,
+      max_tokens: 1024,
+    });
+
+    return response.choices[0]?.message?.content || "Failed to correct text";
   } catch (error) {
     console.error("Error correcting Marathi:", error);
     throw new Error("Failed to correct text");

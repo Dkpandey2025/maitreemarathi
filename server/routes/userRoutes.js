@@ -52,8 +52,15 @@ router.get("/level-status/:phone", async (req, res) => {
     ).length;
 
     // Check if levels are unlocked
+    // A level is completed only if it has lessons AND all are completed
     const beginnerCompleted = beginnerLessons.length > 0 && completedBeginnerCount === beginnerLessons.length;
     const mediumCompleted = mediumLessons.length > 0 && completedMediumCount === mediumLessons.length;
+
+    // Medium unlocks only when beginner is fully completed
+    const mediumUnlocked = beginnerCompleted;
+    
+    // Expert unlocks only when medium is fully completed AND medium was unlocked
+    const expertUnlocked = mediumUnlocked && mediumCompleted;
 
     const levelStatus = {
       beginner: {
@@ -62,16 +69,27 @@ router.get("/level-status/:phone", async (req, res) => {
         total: beginnerLessons.length
       },
       medium: {
-        unlocked: beginnerCompleted,
+        unlocked: mediumUnlocked,
         completed: completedMediumCount,
         total: mediumLessons.length
       },
       expert: {
-        unlocked: mediumCompleted,
+        unlocked: expertUnlocked,
         completed: completedExpertCount,
         total: expertLessons.length
       }
     };
+
+    console.log("Level Status Debug:", {
+      beginnerLessons: beginnerLessons.length,
+      completedBeginnerCount,
+      beginnerCompleted,
+      mediumLessons: mediumLessons.length,
+      completedMediumCount,
+      mediumCompleted,
+      mediumUnlocked,
+      expertUnlocked
+    });
 
     res.json({ status: "success", levelStatus });
   } catch (err) {
@@ -110,13 +128,14 @@ router.get("/lessons/:level/:phone", async (req, res) => {
         (id) => id.toString() === lesson._id.toString()
       );
       
-      // First lesson is always unlocked
-      const isUnlocked = index === 0 || 
+      // STEP 1: Check sequential unlock (previous lesson must be completed)
+      // First lesson is always unlocked, others unlock when previous is completed
+      const isPreviousCompleted = index === 0 || 
         user.completedLessons.some(
           (id) => id.toString() === lessons[index - 1]._id.toString()
         );
       
-      // Check if there's a quiz after the previous lesson
+      // STEP 2: Check if there's a quiz after the previous lesson
       const previousLessonNumber = lesson.lessonNumber - 1;
       const quiz = quizzes.find(q => {
         const afterLesson = q.afterLesson || (q.quizNumber * 5);
@@ -124,7 +143,7 @@ router.get("/lessons/:level/:phone", async (req, res) => {
       });
       const requiresQuiz = quiz && !user.quizzesPassed.includes(quiz.quizNumber);
       
-      // Check subscription access
+      // STEP 3: Check subscription access
       let requiresSubscription = false;
       if (user.subscriptionType === "free") {
         // Free users: only first 3 beginner lessons
@@ -135,10 +154,29 @@ router.get("/lessons/:level/:phone", async (req, res) => {
         }
       }
       
+      // FINAL: Lesson is unlocked only if ALL conditions are met:
+      // 1. Previous lesson is completed (sequential)
+      // 2. No quiz is blocking it
+      // 3. User has subscription (if required)
+      let isUnlocked = isPreviousCompleted;
+      
+      // If previous lesson not completed, lock it
+      if (!isPreviousCompleted) {
+        isUnlocked = false;
+      }
+      // If quiz is required and not passed, lock it
+      else if (requiresQuiz) {
+        isUnlocked = false;
+      }
+      // If subscription required and user doesn't have it, lock it
+      else if (requiresSubscription) {
+        isUnlocked = false;
+      }
+      
       return {
         ...lesson.toObject(),
         isCompleted,
-        isUnlocked: requiresSubscription ? false : (requiresQuiz ? false : isUnlocked),
+        isUnlocked,
         requiresQuiz: requiresQuiz,
         requiresSubscription: requiresSubscription,
         quizNumber: quiz ? quiz.quizNumber : null
@@ -367,7 +405,8 @@ router.post("/forgot-password", async (req, res) => {
     }
 
     // Create reset link
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}&phone=${phone}`;
+    const resetPasswordBaseUrl = process.env.RESET_PASSWORD_URL || process.env.FRONTEND_URL + '/reset-password';
+    const resetLink = `${resetPasswordBaseUrl}?token=${resetToken}&phone=${phone}`;
 
     // Log for development
     console.log(`Password reset link for ${phone}: ${resetLink}`);
@@ -433,6 +472,50 @@ router.post("/verify-reset-token", async (req, res) => {
     });
   } catch (err) {
     console.error("Verify token error:", err);
+    res.status(500).json({ status: "error", message: "Server error: " + err.message });
+  }
+});
+
+// =========================
+// CHANGE PASSWORD (WITH CURRENT PASSWORD)
+// =========================
+router.post("/change-password", async (req, res) => {
+  try {
+    const { phone, currentPassword, newPassword } = req.body;
+
+    if (!phone || !currentPassword || !newPassword) {
+      return res.json({ status: "error", message: "All fields are required" });
+    }
+
+    if (newPassword.length < 4) {
+      return res.json({ status: "error", message: "New password must be at least 4 characters" });
+    }
+
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.json({ status: "error", message: "User not found" });
+    }
+
+    // Verify current password
+    if (user.password !== currentPassword) {
+      return res.json({ status: "error", message: "Current password is incorrect" });
+    }
+
+    // Check if new password is same as current
+    if (currentPassword === newPassword) {
+      return res.json({ status: "error", message: "New password must be different from current password" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      status: "success",
+      message: "Password changed successfully"
+    });
+  } catch (err) {
+    console.error("Change password error:", err);
     res.status(500).json({ status: "error", message: "Server error: " + err.message });
   }
 });

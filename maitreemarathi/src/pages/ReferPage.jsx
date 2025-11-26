@@ -180,15 +180,6 @@ export default function ReferPage() {
   return (
     <DashboardLayout>
       <div className="w-full max-w-lg mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/home")}
-          className="flex items-center gap-2 p-2 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg hover:bg-purple-50 transition-all mb-4"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-        </button>
-
         <h1 className="text-2xl font-bold text-purple-600 mb-4">
           Refer & Earn
         </h1>
@@ -246,8 +237,9 @@ export default function ReferPage() {
           <ol className="list-decimal pl-6 text-gray-800 space-y-2 leading-relaxed">
             <li>अपना रेफ़रल कोड शेयर करें</li>
             <li>दोस्त आपके कोड से रजिस्टर करें</li>
-            <li>वे पेमेंट करने पर आपको ₹101 मिलेंगे</li>
+            <li>अगर आपका रेफ़रल मंथली प्लान लेता है, तो आपको ₹51 मिलेंगे, और अगर वह एनुअल प्लान सब्सक्राइब करता है, तो आपको ₹101 आपके वॉलेट में क्रेडिट किए जाएंगे।</li>
             <li>पैसा तुरंत आपके वॉलेट में आ जाएगा</li>
+            <li>रेफ़रल तभी वैध माना जाएगा जब आपका रेफ़रल सब्सक्रिप्शन लेगा; जैसे ही वह मंथली या एनुअल प्लान लेता है, उतनी राशि तुरंत आपके वॉलेट में क्रेडिट हो जाएगी।</li>
           </ol>
         </div>
       </div>

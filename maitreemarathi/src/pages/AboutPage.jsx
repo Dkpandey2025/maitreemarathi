@@ -10,9 +10,9 @@ export default function AboutPage() {
   if (user) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-purple-50 p-8 flex items-center justify-center">
-          <div className="max-w-3xl bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-purple-600 mb-4">About Us</h2>
+        <div className="bg-purple-50 p-4 sm:p-6">
+          <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-purple-600 mb-4">About Us</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               Maitree Marathi is an innovative platform designed to help learners of all
               backgrounds easily learn and speak Marathi through engaging lessons,

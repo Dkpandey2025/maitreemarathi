@@ -149,6 +149,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 async function paynow(e) {
   e.preventDefault();
@@ -164,7 +165,7 @@ async function paynow(e) {
       purpose: form.purpose.value,
     };
 
-    const res = await axios.post("http://localhost:5000/payment", payload);
+    const res = await axios.post(API_ENDPOINTS.PAYMENT, payload);
 
     const url = res.data.data.payment_request.longurl;
     window.location.href = url;
