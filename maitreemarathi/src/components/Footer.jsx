@@ -12,8 +12,7 @@ export default function Footer() {
             Maitree Marathi
           </h3>
           <p className="text-sm leading-relaxed">
-            Learn Marathi the fun and easy way! Interactive lessons, voice-based
-            AI learning, and gamified challenges help you master the language
+            Learn Marathi the fun and easy way! Interactive lessons and gamified challenges help you master the language
             naturally.
           </p>
         </div>
