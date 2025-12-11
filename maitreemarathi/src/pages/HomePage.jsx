@@ -64,7 +64,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-700 font-medium">हेल्पलाइन</p>
             </button>
             <button
-              onClick={() => window.open("https://wa.me/918987562984", "_blank")}
+              onClick={() => window.open("https://wa.me/919136915196", "_blank")}
               className="bg-blue-50 hover:bg-blue-100 p-4 rounded-xl text-center transition"
             >
               <p className="text-sm text-gray-700 font-medium">चैट सहायता</p>
