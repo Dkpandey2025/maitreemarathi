@@ -511,7 +511,7 @@ export default function LandingPage() {
         </p>
 
         <button className="bg-white text-purple-700 px-8 sm:px-10 py-3 sm:py-4 rounded-lg sm:rounded-xl shadow-lg text-base sm:text-lg font-bold hover:bg-purple-50 transition flex items-center gap-2 mx-auto">
-          <Link to="/register" >सीखना शुरू करें <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /></Link>
+          <Link to="/register" >सीखना शुरू करें </Link> <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </section>
 
